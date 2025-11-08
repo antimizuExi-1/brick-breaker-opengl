@@ -1,13 +1,11 @@
 #ifndef BRICK_VERTEX_OBJECT_H
 #define BRICK_VERTEX_OBJECT_H
 
-#include <glad/glad.h>
-
 #include "Export.h"
 #include "Shader.h"
 
 #ifndef arrlen
-#define arrlen(x) sizeof(x)/sizeof(x[0])
+#define arrlen(x) sizeof(x) / sizeof(x[0])
 #endif
 
 typedef struct
@@ -28,11 +26,16 @@ BrkAPI BrkVertexObject Brk_VertexObject_Create(const float *vertices, unsigned i
 BrkAPI BrkVertexObject Brk_VertexObject_CreateUseEbo(const float *vertices, unsigned int vertices_size,
                                                      const unsigned int *indices, unsigned int indices_size);
 
+BrkAPI BrkVertexObject Brk_VertexObject_CreateDynamic(unsigned int vertices_size);
+
 BrkAPI BrkVertexObject Brk_VertexObject_Copy(BrkVertexObject source);
 
 BrkAPI void Brk_VertexObject_Draw(BrkVertexObject vertexObject, PrimitiveTypes type, BrkShader shader, int vertexCount);
 
-BrkAPI void Brk_VertexObject_DrawElements(BrkVertexObject vertexObject, int vertexCount);
+BrkAPI void Brk_VertexObject_DrawDynamic(BrkVertexObject vertexObject, PrimitiveTypes type, BrkShader shader,
+                                         const float *vertices, unsigned int vertices_size, int vertexCount);
+
+BrkAPI void Brk_VertexObject_DrawElements(BrkVertexObject vertexObject, BrkShader shader, int vertexCount);
 
 BrkAPI void Brk_VertexObject_SetAttributes(BrkVertexObject object,
                                            int index, int vertexAttributesSize, int strat, int stride);

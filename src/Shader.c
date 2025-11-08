@@ -1,9 +1,9 @@
 #include <glad/glad.h>
-
-#include "brick/Shader.h"
-#include "brick/Utils.h"
+#include <cglm/ivec3.h>
 
 #include "GLCheek.h"
+#include "brick/Utils.h"
+#include "brick/Shader.h"
 
 BrkShader Brk_Shader_Load(const char *vsFilePath, const char *fsFilePath)
 {

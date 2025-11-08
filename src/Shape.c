@@ -1,4 +1,4 @@
-#include "brick/shape/Shape.h"
+#include "brick/Shape.h"
 
 // load shape's vertices data and compile shaders
 extern void Brk_Rectangle_LoadResource();

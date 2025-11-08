@@ -1,9 +1,8 @@
-#include <cglm/vec2.h>
+#include <cglm/cglm.h>
 
 #include "brick/Shader.h"
 #include "brick/VertexObject.h"
-
-#include "brick/shape/Rectangle.h"
+#include "brick/Rectangle.h"
 
 static const float prvRecVertices[] = {
     -0.5f, 0.5f,
@@ -50,13 +49,12 @@ void Brk_Rectangle_LoadResource()
     }
 }
 
-BrkRectangle Brk_Rectangle_Create(vec2 position, float width, float height)
+BrkRectangle Brk_Rectangle_Create(vec2 position, vec2 size)
 {
     BrkRectangle rect;
 
     glm_vec2_copy(position, rect.position);
-    rect.size[0] = width;
-    rect.size[1] = height;
+    glm_vec2_copy(size, rect.size);
 
     return rect;
 }

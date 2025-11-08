@@ -11,6 +11,15 @@ extern void prv_Brk_Shape_Init(void);
 
 extern void prv_Brk_Shape_Cleanup(void);
 
+extern void Brk_Sprite_LoadResource(void);
+
+extern void Brk_Sprite_CleanupResource(void);
+
+void resize(GLFWwindow *window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
 bool Brk_Window_Init(int width, int height, const char *title)
 {
     glfwInit();
@@ -29,13 +38,22 @@ bool Brk_Window_Init(int width, int height, const char *title)
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-    glViewport(0, 0, width, height);
+    glfwSetFramebufferSizeCallback(window, resize);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // init shape resource
+    Brk_Sprite_LoadResource();
     prv_Brk_Shape_Init();
 
     return true;
+}
+
+BrkAPI void Brk_Window_GetSize(int *width, int *height)
+{
+    glfwGetWindowSize(window, width, height);
 }
 
 bool Brk_Window_ShouldClose(void)
@@ -67,6 +85,8 @@ bool Brk_Window_KeyPressed(int key)
 void Brk_Window_Close(void)
 {
     prv_Brk_Shape_Cleanup();
+    Brk_Sprite_CleanupResource();
+
     glfwDestroyWindow(window);
     glfwTerminate();
 }

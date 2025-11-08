@@ -1,12 +1,12 @@
 #ifndef BRICK_WINDOW_H
 #define BRICK_WINDOW_H
 
-#include <stdbool.h>
+#include "Macro.h"
 #include "Export.h"
 
-BrkAPI bool Brk_Window_Init(int width, int height, const char* title);
+BrkAPI bool Brk_Window_Init(int width, int height, const char *title);
 
-// BrkAPI void Brk_Window_Enable(unsigned int glCap);
+BrkAPI void Brk_Window_GetSize(int *width, int *height);
 
 BrkAPI bool Brk_Window_ShouldClose(void);
 

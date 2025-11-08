@@ -25,7 +25,23 @@ BrkVertexObject Brk_VertexObject_CreateUseEbo(const float *vertices, const unsig
 
     BrkGLCall(glGenBuffers(1, &vertexObject.eboID));
     BrkGLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexObject.eboID));
-    BrkGLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size, indices, GL_STATIC_DRAW));
+    BrkGLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices_size, indices, GL_STATIC_DRAW));
+
+    return vertexObject;
+}
+
+BrkVertexObject Brk_VertexObject_CreateDynamic(unsigned int vertices_size)
+{
+    BrkVertexObject vertexObject;
+
+    BrkGLCall(glGenVertexArrays(1, &vertexObject.vaoID));
+    BrkGLCall(glBindVertexArray(vertexObject.vaoID));
+
+    BrkGLCall(glGenBuffers(1, &vertexObject.vboID));
+    BrkGLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexObject.vboID));
+
+    BrkGLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(float)* vertices_size, NULL, GL_DYNAMIC_DRAW));
+    vertexObject.eboID = 0;
 
     return vertexObject;
 }
@@ -55,15 +71,25 @@ void Brk_VertexObject_Draw(BrkVertexObject vertexObject, PrimitiveTypes type, Br
     BrkGLCall(glDrawArrays(type, 0, vertexCount));
 }
 
-void Brk_VertexObject_DrawElements(BrkVertexObject vertexObject, int vertexCount)
+void Brk_VertexObject_DrawDynamic(BrkVertexObject vertexObject, PrimitiveTypes type, BrkShader shader,
+                                  const float *vertices, unsigned int vertices_size, int vertexCount)
 {
     BrkGLCall(glBindVertexArray(vertexObject.vaoID));
+    BrkGLCall(glUseProgram(shader));
+    // Update content of VBO memory
+    BrkGLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexObject.vboID));
+    BrkGLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices_size, vertices));
+    glDrawArrays(type, 0, vertexCount);
+}
+
+void Brk_VertexObject_DrawElements(BrkVertexObject vertexObject, BrkShader shader, int vertexCount)
+{
+    BrkGLCall(glBindVertexArray(vertexObject.vaoID));
+    BrkGLCall(glUseProgram(shader));
     BrkGLCall(glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0));
 }
 
-void Brk_VertexObject_SetAttributes(
-    BrkVertexObject object, int index,
-    int vertexAttributesSize, int strat, int stride)
+void Brk_VertexObject_SetAttributes(BrkVertexObject object, int index, int vertexAttributesSize, int strat, int stride)
 {
     BrkGLCall(glBindVertexArray(object.vaoID));
     BrkGLCall(

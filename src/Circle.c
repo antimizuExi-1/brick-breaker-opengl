@@ -1,10 +1,8 @@
-#include <glad/glad.h>
+#include <cglm/cglm.h>
 
 #include "brick/VertexObject.h"
 #include "brick/Shader.h"
-#include "../GLCheek.h"
-
-#include "brick/shape/Circle.h"
+#include "brick/Circle.h"
 
 float circleVertices[] = {
     0.0f, 0.0f, 0.0f,

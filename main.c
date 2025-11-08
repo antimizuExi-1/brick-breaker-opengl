@@ -1,8 +1,8 @@
 #include "brick/Macro.h"
-#include "brick/Utils.h"
+#include "include/brick/Sprite.h"
 #include "brick/Window.h"
-#include "brick/shape/Circle.h"
-#include "brick/shape/Rectangle.h"
+#include "brick/Circle.h"
+#include "brick/Rectangle.h"
 
 const int width = 1200;
 const int height = 800;
@@ -15,10 +15,10 @@ int main(void)
 {
     Brk_Window_Init(width, height, "brick breaker");
 
-    BrkCamera2D camera = Brk_Camera_Create((vec2){0.0f, 0.0f}, (float) width, (float) height);
+    BrkCamera2D camera = Brk_Camera_Create((BrkVec2){0.0f, 0.0f}, (float) width, (float) height);
 
-    BrkRectangle bat = Brk_Rectangle_Create((vec2){600.0f, 680.0f}, 200.0f, 30.0f);
-    BrkCircle ball = Brk_Circle_Create((vec2){610.0f, 500.0f}, 15.0f);
+    BrkRectangle bat = Brk_Rectangle_Create((BrkVec2){600.0f, 680.0f}, (BrkVec2){200.0f, 30.0f});
+    BrkCircle ball = Brk_Circle_Create((BrkVec2){610.0f, 500.0f}, 15.0f);
 
     const int bricksW = 12;
     const int bricksH = 6;
@@ -34,9 +34,17 @@ int main(void)
         if (Brk_Window_KeyPressed('A'))
         {
             bat.position[0] -= 5.0f;
+            if (bat.position[0] < 100.0f)
+            {
+                bat.position[0] += 5.0f;
+            }
         } else if (Brk_Window_KeyPressed('D'))
         {
             bat.position[0] += 5.0f;
+            if (bat.position[0] > width - 100.0f)
+            {
+                bat.position[0] -= 5.0f;
+            }
         }
         if (Brk_Window_KeyPressed('R'))
         {
@@ -81,6 +89,10 @@ int main(void)
         ball.position[0] += speedX;
         ball.position[1] += speedY;
 
+        int w, h;
+        Brk_Window_GetSize(&w, &h);
+        Brk_Camera_UpdateSize(&camera, w, h);
+
         // draw
         Brk_Window_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         // draw bricks
@@ -109,7 +121,7 @@ void Init_Map(int bricksW, int bricksH)
     {
         for (int j = 0; j < bricksW; j++)
         {
-            bricks[j][i] = Brk_Rectangle_Create((vec2){j * 100 + 50, i * 30 + 15}, 100, 30);
+            bricks[j][i] = Brk_Rectangle_Create((BrkVec2){j * 100 + 50, i * 30 + 15}, (BrkVec2){100.0f, 30.0f});
         }
     }
 }

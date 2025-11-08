@@ -18,14 +18,20 @@ set(brick_lib_src
         src/Shader.c
         src/GLCheck.c
         src/Camera.c
-        src/shape/Rectangle.c
-        src/shape/Circle.c
-        src/shape/shape.c
+        src/Rectangle.c
+        src/Circle.c
+        src/Shape.c
+        src/Texture.c
+        src/Sprite.c
+        src/Text.c
 )
 
 add_library(brick ${brick_lib_src})
 target_include_directories(brick PRIVATE ${Stb_INCLUDE_DIR})
 target_link_libraries(brick glad::glad glfw cglm::cglm Freetype::Freetype)
 
-add_executable(brickTest1 main.c)
-target_link_libraries(brickTest1 brick)
+add_executable(BrickBreaker main.c)
+target_link_libraries(BrickBreaker brick)
+
+#add_executable(test2 test.c)
+#target_link_libraries(test2 brick)
