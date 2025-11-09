@@ -1,3 +1,4 @@
+#include "brick/Font.h"
 #include "brick/Macro.h"
 #include "brick/Sprite.h"
 #include "brick/Window.h"
@@ -18,6 +19,9 @@ int main(void)
 
     BrkRectangle bat = Brk_Rectangle_Create((BrkVec2){600.0f, 680.0f}, (BrkVec2){200.0f, 30.0f});
     BrkCircle ball = Brk_Circle_Create((BrkVec2){610.0f, 500.0f}, 15.0f);
+
+    BrkFont font = Brk_Font_Load("../font/arial.ttf");
+    Brk_Text_LoadCharacterSet(font);
 
     const int bricksW = 12;
     const int bricksH = 6;
@@ -94,6 +98,7 @@ int main(void)
 
         // draw
         Brk_Window_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
         // draw bricks
         for (int i = 0; i < bricksH; i++)
         {
@@ -104,6 +109,7 @@ int main(void)
                 Brk_Rectangle_Draw(bricks[j][i], Brk_LIGHTGRAY, camera);
             }
         }
+        Brk_Text_DrawText("HelloWorld", Brk_RED, (BrkVec2){200, 500}, 1.0f, camera);
 
         Brk_Circle_Draw(ball, Brk_WHITE, camera);
         Brk_Rectangle_Draw(bat, Brk_BLUE, camera);

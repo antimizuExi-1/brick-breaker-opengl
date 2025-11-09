@@ -4,7 +4,7 @@
 #include "Macro.h"
 #include "Export.h"
 
-typedef struct
+typedef struct BrkCamera2D
 {
     BrkVec2 position;
     float width;

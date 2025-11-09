@@ -23,6 +23,7 @@ set(brick_lib_src
         src/Shape.c
         src/Texture.c
         src/Sprite.c
+        src/Font.c
 )
 
 add_library(brick ${brick_lib_src})

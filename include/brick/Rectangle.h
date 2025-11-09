@@ -5,7 +5,7 @@
 #include "Export.h"
 #include "Camera.h"
 
-typedef struct
+typedef struct BrkRectangle
 {
     BrkVec2 position;
     BrkVec2 size;

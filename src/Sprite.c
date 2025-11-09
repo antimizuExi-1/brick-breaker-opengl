@@ -51,6 +51,18 @@ void Brk_Sprite_LoadResource(void)
     Brk_VertexObject_SetAttributes(prvSpriteVO, 1, 2, 3, 5);
 }
 
+BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void *data)
+{
+    BrkSprite sprite;
+
+    glm_vec2_copy(position, sprite.rect.position);
+    glm_vec2_copy(size, sprite.rect.size);
+
+    sprite.texture = Brk_Texture2D_Create(size[0], size[1], data);
+
+    return sprite;
+}
+
 BrkSprite Brk_Sprite_Load(const char *imagePath, vec2 position, vec2 size)
 {
     BrkSprite sprite;
@@ -58,12 +70,35 @@ BrkSprite Brk_Sprite_Load(const char *imagePath, vec2 position, vec2 size)
     glm_vec2_copy(position, sprite.rect.position);
     glm_vec2_copy(size, sprite.rect.size);
 
-    sprite.texture = Brk_Texture2D_Load(imagePath);
+    sprite.texture = Brk_Texture2D_LoadFromImage(imagePath);
 
     return sprite;
 }
 
-void Brk_Sprite_Draw(BrkSprite sprite, BrkCamera2D camera)
+void Brk_Sprite_DrawDynamic(BrkSprite sprite,
+                            const float *vertices, unsigned int vertices_size
+                            , BrkCamera2D camera)
+{
+    BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
+    mat4 model = GLM_MAT4_IDENTITY_INIT;
+    glm_translate(model, (vec3){sprite.rect.position[0], sprite.rect.position[1], 0.0f});
+    glm_scale(model, (vec3){sprite.rect.size[0], sprite.rect.size[1], 1.0f});
+
+    mat4 view = GLM_MAT4_IDENTITY_INIT;
+    glm_translate(view, (vec3){camera.position[0], camera.position[1], 0.0f});
+
+    mat4 projection = GLM_MAT4_IDENTITY_INIT;
+    glm_ortho(0.0f, camera.width,
+              camera.height, 0.0f,
+              -100.0f, 100.0f, projection);
+    Brk_Shader_SetThreeUniformsMat4(prvSpriteShader,
+                                    "model", "view", "projection",
+                                    model, view, projection);
+
+    Brk_VertexObject_DrawDynamic(prvSpriteVO, Triangles, prvSpriteShader, vertices, sizeof(float) * vertices_size, 6);
+}
+
+void Brk_Sprite_DrawElements(BrkSprite sprite, BrkCamera2D camera)
 {
     BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
     mat4 model = GLM_MAT4_IDENTITY_INIT;

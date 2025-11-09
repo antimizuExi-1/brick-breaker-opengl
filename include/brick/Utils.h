@@ -3,7 +3,7 @@
 
 #include "Export.h"
 
-typedef enum
+typedef enum Brk_LogLevel
 {
     Brk_INFO,
     Brk_WARNING,

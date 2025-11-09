@@ -4,7 +4,7 @@
 #include "Export.h"
 #include "Camera.h"
 
-typedef struct
+typedef struct BrkCircle
 {
     BrkVec2 position;
     float radius;
