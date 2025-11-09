@@ -40,9 +40,6 @@ bool Brk_Window_Init(int width, int height, const char *title)
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSetFramebufferSizeCallback(window, resize);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // init shape resource
     Brk_Sprite_LoadResource();

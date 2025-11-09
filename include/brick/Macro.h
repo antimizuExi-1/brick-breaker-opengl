@@ -11,11 +11,11 @@ typedef int BrkIVec3[3];
 
 
 // color
-#define Brk_WHITE (float[]){1.0f, 1.0f, 1.0f}
-#define Brk_RED (float[]){1.0f, 0.0f, 0.0f}
-#define Brk_BLUE (float[]){0.0f, 0.0f, 1.0f}
-#define Brk_LIGHTGRAY (float[]){0.5f, 0.5f, 0.5f}
-#define Brk_GRAY (float[]){0.25f, 0.25f, 0.25f}
+#define Brk_WHITE (BrkColor){1.0f, 1.0f, 1.0f}
+#define Brk_RED (BrkColor){1.0f, 0.0f, 0.0f}
+#define Brk_BLUE (BrkColor){0.0f, 0.0f, 1.0f}
+#define Brk_LIGHTGRAY (BrkColor){0.5f, 0.5f, 0.5f}
+#define Brk_GRAY (BrkColor){0.25f, 0.25f, 0.25f}
 
 #ifndef bool
 #define bool _Bool

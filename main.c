@@ -1,8 +1,7 @@
 #include "brick/Macro.h"
-#include "include/brick/Sprite.h"
+#include "brick/Sprite.h"
 #include "brick/Window.h"
-#include "brick/Circle.h"
-#include "brick/Rectangle.h"
+#include "brick/Shape.h"
 
 const int width = 1200;
 const int height = 800;
@@ -106,8 +105,8 @@ int main(void)
             }
         }
 
-        Brk_Rectangle_Draw(bat, Brk_BLUE, camera);
         Brk_Circle_Draw(ball, Brk_WHITE, camera);
+        Brk_Rectangle_Draw(bat, Brk_BLUE, camera);
 
         Brk_Window_SwapBuffer();
     }
