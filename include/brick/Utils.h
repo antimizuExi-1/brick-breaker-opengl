@@ -15,7 +15,7 @@ BrkAPI void Brk_SetLevelThreshold(Brk_LogLevel level);
 
 void Brk_Logging(Brk_LogLevel level, const char* file, int line, const char* format, ...);
 
-// Note: This function will malloc a new String to return, remember free it
+// Note: This function will create a new String to return, remember free it
 BrkAPI char* Brk_LoadTextFile(const char* fileName);
 
 #ifndef BrkLogging

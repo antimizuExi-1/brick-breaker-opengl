@@ -32,5 +32,5 @@ target_link_libraries(brick glad::glad glfw cglm::cglm Freetype::Freetype)
 add_executable(BrickBreaker main.c)
 target_link_libraries(BrickBreaker brick)
 
-#add_executable(test2 test.c)
-#target_link_libraries(test2 brick)
+add_executable(test1 test1.c)
+target_link_libraries(test1 brick)

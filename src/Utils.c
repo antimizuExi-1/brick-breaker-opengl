@@ -55,7 +55,7 @@ char* Brk_LoadTextFile(const char* fileName)
 {
     char* text = NULL;
     FILE* file = fopen(fileName, "r");
-    if (!file)
+    if (file == NULL)
     {
         BrkLogging(Brk_ERROR, "File: %s not found\n", fileName);
     }
@@ -65,13 +65,13 @@ char* Brk_LoadTextFile(const char* fileName)
         const size_t file_size = ftell(file);
         fseek(file, 0, SEEK_SET);
 
-        text = malloc(sizeof(char) * (file_size + 1));
+        text = calloc(file_size + 1, sizeof(char));
         if (text == NULL)
         {
-            BrkLogging(Brk_ERROR, "malloc failed\n");
+            BrkLogging(Brk_ERROR, "calloc failed\n");
             return NULL;
         }
-        fread(text, 1, file_size, file);
+        fread(text, sizeof(char), file_size, file);
         text[file_size] = '\0';
         fclose(file);
     }
