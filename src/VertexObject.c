@@ -1,7 +1,9 @@
 #include <glad/glad.h>
+#include <stddef.h>
 
 #include "GLCheek.h"
 #include "brick/VertexObject.h"
+
 
 BrkVertexObject Brk_VertexObject_Create(const float *vertices, unsigned int vertices_size)
 {
