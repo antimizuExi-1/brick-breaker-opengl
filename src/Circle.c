@@ -1,10 +1,10 @@
 #include <cglm/cglm.h>
 
 #include "brick/VertexObject.h"
-#include "brick/Shader.h"
+#include "brick/Shape.h"
 #include "brick/Circle.h"
 
-float circleVertices[] = {
+static float circleVertices[] = {
     0.0f, 0.0f, 0.0f,
     1.000000f, 0.000000f, 0.0f, // 0°
     0.980785f, 0.195090f, 0.0f, // 11.25°
@@ -41,41 +41,16 @@ float circleVertices[] = {
     1.000000f, 0.000000f, 0.0f // 360°
 };
 
-static const int CIRCLE_VERTEX_COUNT = 34;
+static BrkShape circleShape = {0};
 
-static const char *prvCircleVSSrc =
-        "#version 330 core\n"
-        "uniform mat4 projection;\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 model;\n"
-        "layout (location = 0) in vec3 position;\n"
-        "void main(){\n"
-        "   gl_Position = projection * view * model * vec4(position, 1.0f);\n"
-        "}\n";
-
-static const char *prvCircleFSSrc =
-        "#version 330 core\n"
-        "uniform vec3 circleColor;\n"
-        "out vec4 aColor;\n"
-        "void main(){\n"
-        "   aColor = vec4(circleColor, 1.0f);\n"
-        "}\n";
-
-static BrkVertexObject prvCircleVO = {0};
-static BrkShader prvCircleShader = {0};
-
-void Brk_Circle_LoadResource()
+void prv_Brk_Circle_InitShape(void)
 {
-    // If the first time created Rectangle, Load shader and create vertex object
-    if (prvCircleShader == 0)
-    {
-        prvCircleShader = Brk_Shader_LoadFromMemory(prvCircleVSSrc, prvCircleFSSrc);
-    }
-    if (prvCircleVO.vaoID == 0)
-    {
-        prvCircleVO = Brk_VertexObject_Create(circleVertices, arrlen(circleVertices));
-        Brk_VertexObject_SetAttributes(prvCircleVO, 0, 3, 0, 3);
-    }
+    circleShape = Brk_Shape_Create(circleVertices, arrlen(circleVertices), 3);
+}
+
+void prv_Brk_Circle_CloseShape(void)
+{
+    Brk_Shape_Destroy(circleShape);
 }
 
 BrkCircle Brk_Circle_Create(vec2 position, float radius)
@@ -89,27 +64,7 @@ BrkCircle Brk_Circle_Create(vec2 position, float radius)
 
 void Brk_Circle_Draw(BrkCircle circle, vec3 color, BrkCamera2D camera)
 {
-    mat4 model = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(model, (vec3){circle.position[0], circle.position[1], 0.0f});
-    glm_scale(model, (vec3){circle.radius, circle.radius, 1.0f});
-
-    mat4 view = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(view, (vec3){camera.position[0], camera.position[1], 0.0f});
-
-    mat4 projection = GLM_MAT4_IDENTITY_INIT;
-    glm_ortho(0.0f, camera.width,
-              camera.height, 0.0f,
-              -100.0f, 100.0f, projection);
-
-    Brk_Shader_SetThreeUniformsMat4(prvCircleShader,
-                                    "model", "view", "projection",
-                                    model, view, projection);
-    Brk_Shader_SetUniformsVec3(prvCircleShader, "circleColor", color);
-    Brk_VertexObject_Draw(prvCircleVO, TriangleFan, prvCircleShader, CIRCLE_VERTEX_COUNT);
-}
-
-void Brk_Circle_CleanupResource(void)
-{
-    Brk_VertexObject_Destroy(prvCircleVO);
-    Brk_Shader_Unload(prvCircleShader);
+    Brk_Shape_Draw(circleShape, circle.position,
+                   (BrkVec2){circle.radius, circle.radius},
+                   TriangleFan, 34, color, camera);
 }

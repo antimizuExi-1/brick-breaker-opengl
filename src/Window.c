@@ -5,22 +5,26 @@
 #include "brick/Window.h"
 
 // private
-static GLFWwindow *window;
+static GLFWwindow* window;
 
-extern void prv_Brk_Shape_Init(void);
+extern void Brk_Shape_LoadShader(void);
+extern void Brk_Shape_UnloadShader(void);
 
-extern void prv_Brk_Shape_Cleanup(void);
+extern void prv_Brk_Circle_InitShape(void);
+extern void prv_Brk_Circle_CloseShape(void);
+
+extern void prv_Brk_Rectangle_InitShape(void);
+extern void prv_Brk_Rectangle_CloseShape(void);
 
 extern void Brk_Sprite_LoadResource(void);
-
 extern void Brk_Sprite_CleanupResource(void);
 
-void resize(GLFWwindow *window, int width, int height)
+void resize(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-bool Brk_Window_Init(int width, int height, const char *title)
+bool Brk_Window_Init(int width, int height, const char* title)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -37,18 +41,32 @@ bool Brk_Window_Init(int width, int height, const char *title)
     }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glfwSetFramebufferSizeCallback(window, resize);
-    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_DEPTH_TEST);
 
     // init shape resource
+    Brk_Shape_LoadShader();
+    prv_Brk_Rectangle_InitShape();
+    prv_Brk_Circle_InitShape();
     Brk_Sprite_LoadResource();
-    prv_Brk_Shape_Init();
 
     return true;
 }
 
-BrkAPI void Brk_Window_GetSize(int *width, int *height)
+void Brk_Window_Close(void)
+{
+    Brk_Shape_UnloadShader();
+    prv_Brk_Circle_CloseShape();
+    prv_Brk_Rectangle_CloseShape();
+    Brk_Sprite_CleanupResource();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
+
+BrkAPI void Brk_Window_GetSize(int* width, int* height)
 {
     glfwGetWindowSize(window, width, height);
 }
@@ -77,13 +95,4 @@ void Brk_Window_PollEvent()
 bool Brk_Window_KeyPressed(int key)
 {
     return glfwGetKey(window, key) == GLFW_PRESS;
-}
-
-void Brk_Window_Close(void)
-{
-    prv_Brk_Shape_Cleanup();
-    Brk_Sprite_CleanupResource();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
 }

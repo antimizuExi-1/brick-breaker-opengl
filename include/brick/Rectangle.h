@@ -4,6 +4,7 @@
 #include "Macro.h"
 #include "Export.h"
 #include "Camera.h"
+#include "Shape.h"
 
 typedef struct BrkRectangle
 {
@@ -12,6 +13,8 @@ typedef struct BrkRectangle
 } BrkRectangle;
 
 BrkAPI BrkRectangle Brk_Rectangle_Create(BrkVec2 position, BrkVec2 size);
+
+// BrkAPI void Brk_Rectangle_Destroy(BrkRectangle rectangle);
 
 BrkAPI void Brk_Rectangle_Draw(BrkRectangle rect, BrkColor color, BrkCamera2D camera);
 

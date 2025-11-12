@@ -1,5 +1,5 @@
-#ifndef LIQUIDBRICK_GL_CHEEK_H
-#define LIQUIDBRICK_GL_CHEEK_H
+#ifndef BRICK_GL_CHEEK_H
+#define BRICK_GL_CHEEK_H
 
 #include "brick/Config.h"
 
@@ -17,4 +17,4 @@
 
 void Brk_GLCheckError(const char* file, int line);
 
-#endif //LIQUIDBRICK_GL_CHEEK_H
+#endif //BRICK_GL_CHEEK_H

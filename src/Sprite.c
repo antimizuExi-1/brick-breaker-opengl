@@ -9,49 +9,47 @@
 static const float prvSpriteVertices[] = {
     0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+    -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+
+    0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-    -0.5f, 0.5f, 0.0f, 0.0f, 1.0f
-};
-static const unsigned int prvSpriteIndices[] = {
-    0, 1, 3,
-    1, 2, 3
+    -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
 };
 
-static const char *prvSpriteVSSrc =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "layout (location = 1) in vec2 aTexCoord;\n"
-        "uniform mat4 projection;\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 model;\n"
-        "out vec2 TexCoord;\n"
-        "void main(){\n"
-        "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-        "   TexCoord = aTexCoord;\n"
-        "}\n";
+static const char* prvSpriteVSSrc =
+    "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec2 aTexCoord;\n"
+    "uniform mat4 projection;\n"
+    "uniform mat4 view;\n"
+    "uniform mat4 model;\n"
+    "out vec2 TexCoord;\n"
+    "void main(){\n"
+    "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+    "   TexCoord = aTexCoord;\n"
+    "}\n";
 
-static const char *prvSpriteFSSrc =
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "in vec2 TexCoord;\n"
-        "uniform sampler2D texture1;\n"
-        "void main(){\n"
-        "   FragColor = texture(texture1, TexCoord);\n"
-        "}\n";
+static const char* prvSpriteFSSrc =
+    "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "in vec2 TexCoord;\n"
+    "uniform sampler2D Texture;\n"
+    "void main(){\n"
+    "   FragColor = texture(Texture, TexCoord);\n"
+    "}\n";
 
 static BrkVertexObject prvSpriteVO = {0};
 static BrkShader prvSpriteShader = {0};
 
 void Brk_Sprite_LoadResource(void)
 {
-    prvSpriteShader = Brk_Shader_LoadFromMemory(prvSpriteVSSrc, prvSpriteFSSrc);
-    prvSpriteVO = Brk_VertexObject_CreateUseEbo(prvSpriteVertices, arrlen(prvSpriteVertices),
-                                                prvSpriteIndices, arrlen(prvSpriteIndices));
+    Brk_Shader_LoadFromMemory(&prvSpriteShader, prvSpriteVSSrc, prvSpriteFSSrc);
+    prvSpriteVO = Brk_VertexObject_Create(prvSpriteVertices, arrlen(prvSpriteVertices));
     Brk_VertexObject_SetAttributes(prvSpriteVO, 0, 3, 0, 5);
     Brk_VertexObject_SetAttributes(prvSpriteVO, 1, 2, 3, 5);
 }
 
-BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void *data)
+BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void* data)
 {
     BrkSprite sprite;
 
@@ -63,7 +61,7 @@ BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void *data)
     return sprite;
 }
 
-BrkSprite Brk_Sprite_Load(const char *imagePath, vec2 position, vec2 size)
+BrkSprite Brk_Sprite_Load(const char* imagePath, vec2 position, vec2 size)
 {
     BrkSprite sprite;
 
@@ -76,7 +74,7 @@ BrkSprite Brk_Sprite_Load(const char *imagePath, vec2 position, vec2 size)
 }
 
 void Brk_Sprite_DrawDynamic(BrkSprite sprite,
-                            const float *vertices, unsigned int vertices_size
+                            const float* vertices, unsigned int vertices_size
                             , BrkCamera2D camera)
 {
     BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
@@ -98,7 +96,7 @@ void Brk_Sprite_DrawDynamic(BrkSprite sprite,
     Brk_VertexObject_DrawDynamic(prvSpriteVO, Triangles, prvSpriteShader, vertices, sizeof(float) * vertices_size, 6);
 }
 
-void Brk_Sprite_DrawElements(BrkSprite sprite, BrkCamera2D camera)
+void Brk_Sprite_Draw(BrkSprite sprite, BrkCamera2D camera)
 {
     BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
     mat4 model = GLM_MAT4_IDENTITY_INIT;
@@ -116,7 +114,7 @@ void Brk_Sprite_DrawElements(BrkSprite sprite, BrkCamera2D camera)
                                     "model", "view", "projection",
                                     model, view, projection);
 
-    Brk_VertexObject_DrawElements(prvSpriteVO, prvSpriteShader, 6);
+    Brk_VertexObject_Draw(prvSpriteVO, Triangles, prvSpriteShader, 6);
 }
 
 void Brk_Sprite_Unload(BrkSprite sprite)

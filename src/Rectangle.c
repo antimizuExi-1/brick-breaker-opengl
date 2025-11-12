@@ -2,51 +2,30 @@
 
 #include "brick/Shader.h"
 #include "brick/VertexObject.h"
+#include "brick/Shape.h"
 #include "brick/Rectangle.h"
 
-static const float prvRecVertices[] = {
-    -0.5f, 0.5f,
-    0.5f, 0.5f,
-    -0.5f, -0.5f,
+static float rectVertices[] = {
 
-    0.5f, 0.5f,
-    0.5f, -0.5f,
-    -0.5f, -0.5f,
+    0.5f, 0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    -0.5f, 0.5f, 0.0f,
+
+    0.5f, -0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
+    -0.5f, 0.5f, 0.0f
 };
 
-static const char *prvRecVSSrc =
-        "#version 330 core\n"
-        "uniform mat4 projection;\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 model;\n"
-        "layout (location = 0) in vec2 position;\n"
-        "void main(){\n"
-        "   gl_Position = projection * view * model * vec4(position, 0.0f, 1.0f);\n"
-        "}\n";
+static BrkShape rectShape = {0};
 
-static const char *prvRecFSSrc =
-        "#version 330 core\n"
-        "uniform vec3 recColor;\n"
-        "out vec4 aColor;\n"
-        "void main(){\n"
-        "   aColor = vec4(recColor, 1.0f);\n"
-        "}\n";
-
-static BrkShader prvShader = {0};
-static BrkVertexObject prvRecVO = {0};
-
-void Brk_Rectangle_LoadResource()
+void prv_Brk_Rectangle_InitShape(void)
 {
-    // If the first time, Load shader and create vertex object
-    if (prvShader == 0)
-    {
-        prvShader = Brk_Shader_LoadFromMemory(prvRecVSSrc, prvRecFSSrc);
-    }
-    if (prvRecVO.vaoID == 0)
-    {
-        prvRecVO = Brk_VertexObject_Create(prvRecVertices, arrlen(prvRecVertices));
-        Brk_VertexObject_SetAttributes(prvRecVO, 0, 2, 0, 2);
-    }
+    rectShape = Brk_Shape_Create(rectVertices, arrlen(rectVertices), 3);
+}
+
+void prv_Brk_Rectangle_CloseShape(void)
+{
+    Brk_Shape_Destroy(rectShape);
 }
 
 BrkRectangle Brk_Rectangle_Create(vec2 position, vec2 size)
@@ -78,27 +57,5 @@ bool Brk_Rectangle_CheckCollision(BrkRectangle rectangle, vec2 position)
 
 BrkAPI void Brk_Rectangle_Draw(BrkRectangle rect, vec3 color, BrkCamera2D camera)
 {
-    mat4 model = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(model, (vec3){rect.position[0], rect.position[1], 0.0f});
-    glm_scale(model, (vec3){rect.size[0], rect.size[1], 1.0f});
-
-    mat4 view = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(view, (vec3){camera.position[0], camera.position[1], 0.0f});
-
-    mat4 projection = GLM_MAT4_IDENTITY_INIT;
-    glm_ortho(0.0f, camera.width,
-              camera.height, 0.0f,
-              -100.0f, 100.0f, projection);
-    Brk_Shader_SetThreeUniformsMat4(prvShader,
-                                    "model", "view", "projection",
-                                    model, view, projection);
-    Brk_Shader_SetUniformsVec3(prvShader, "recColor", color);
-
-    Brk_VertexObject_Draw(prvRecVO, Triangles, prvShader, 6);
-}
-
-void Brk_Rectangle_CleanupResource(void)
-{
-    Brk_VertexObject_Destroy(prvRecVO);
-    Brk_Shader_Unload(prvShader);
+    Brk_Shape_Draw(rectShape, rect.position, rect.size, Triangles, 6, color, camera);
 }

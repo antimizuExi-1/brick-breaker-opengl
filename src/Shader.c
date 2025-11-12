@@ -5,29 +5,32 @@
 #include "brick/Utils.h"
 #include "brick/Shader.h"
 
-BrkShader Brk_Shader_Load(const char *vsFilePath, const char *fsFilePath)
+bool Brk_Shader_Load(BrkShader* shader, const char* vsFilePath, const char* fsFilePath)
 {
-    char *vsSource = Brk_LoadTextFile(vsFilePath);
-    char *fsSource = Brk_LoadTextFile(fsFilePath);
+    char* vsSource = Brk_LoadTextFile(vsFilePath);
+    char* fsSource = Brk_LoadTextFile(fsFilePath);
 
     if (vsSource == NULL || fsSource == NULL)
     {
         BrkLogging(Brk_ERROR, "File open filed\n");
-        return 0;
+        return false;
     }
 
-    BrkShader shader = Brk_Shader_LoadFromMemory(vsSource, fsSource);
-
+    bool flag = Brk_Shader_LoadFromMemory(shader, vsSource, fsSource);
     free(vsSource);
     free(fsSource);
 
-    return shader;
+    if (flag)
+    {
+        BrkLogging(Brk_ERROR, "Shader loaded failed\n");
+        return false;
+    }
+
+    return true;
 }
 
-BrkShader Brk_Shader_LoadFromMemory(const char *vsSource, const char *fsSource)
+bool Brk_Shader_LoadFromMemory(BrkShader* shader, const char* vsSource, const char* fsSource)
 {
-    BrkShader shader = 0;
-
     GLint success = 0;
     char info[512] = {0};
 
@@ -39,7 +42,7 @@ BrkShader Brk_Shader_LoadFromMemory(const char *vsSource, const char *fsSource)
     {
         glGetShaderInfoLog(vs, 512, NULL, info);
         BrkLogging(Brk_ERROR, "vertex shaders error: %s\n", info);
-        return shader;
+        return false;
     }
 
     const GLuint fs = BrkGLCall(glCreateShader(GL_FRAGMENT_SHADER));
@@ -51,7 +54,7 @@ BrkShader Brk_Shader_LoadFromMemory(const char *vsSource, const char *fsSource)
         BrkGLCall(glGetShaderInfoLog(fs, 512, NULL, info));
         BrkLogging(Brk_ERROR, "fragment shaders error: %s\n", info);
         BrkGLCall(glDeleteShader(vs));
-        return shader;
+        return false;
     }
 
     const GLuint program = BrkGLCall(glCreateProgram());
@@ -66,31 +69,43 @@ BrkShader Brk_Shader_LoadFromMemory(const char *vsSource, const char *fsSource)
         BrkGLCall(glDeleteShader(vs));
         BrkGLCall(glDeleteShader(fs));
         BrkGLCall(glDeleteProgram(program));
-        return shader;
+        return false;
     }
 
     glDeleteShader(vs);
     glDeleteShader(fs);
 
-    shader = program;
+    *shader = program;
 
-    glUseProgram(shader);
-    return shader;
+    glUseProgram(*shader);
+    return true;
 }
 
-void Brk_Shader_SetUniformsVec3(BrkShader shader, const char *name, vec3 vec)
+void Brk_Shader_SetUniformsVec2(BrkShader shader, const char* name, BrkVec2 vec2)
 {
     BrkGLCall(glUseProgram(shader));
     int location = BrkGLCall(glGetUniformLocation(shader, name));
     if (location == -1)
     {
-        BrkLogging(Brk_ERROR, "Shader uniform location not found\n");
+        BrkLogging(Brk_ERROR, "Shader uniform %s not found\n", name);
+        return;
+    }
+    BrkGLCall(glUniform2fv(location, 1, vec2));
+}
+
+void Brk_Shader_SetUniformsVec3(BrkShader shader, const char* name, vec3 vec)
+{
+    BrkGLCall(glUseProgram(shader));
+    int location = BrkGLCall(glGetUniformLocation(shader, name));
+    if (location == -1)
+    {
+        BrkLogging(Brk_ERROR, "Shader uniform %s not found\n", name);
         return;
     }
     BrkGLCall(glUniform3fv(location, 1, vec));
 }
 
-void Brk_Shader_SetUniformsMat4(BrkShader shader, const char *name, mat4 mat)
+void Brk_Shader_SetUniformsMat4(BrkShader shader, const char* name, mat4 mat)
 {
     BrkGLCall(glUseProgram(shader));
     int location = BrkGLCall(glGetUniformLocation(shader, name));
@@ -103,7 +118,7 @@ void Brk_Shader_SetUniformsMat4(BrkShader shader, const char *name, mat4 mat)
 }
 
 void Brk_Shader_SetThreeUniformsMat4(BrkShader shader,
-                                     const char *name1, const char *name2, const char *name3,
+                                     const char* name1, const char* name2, const char* name3,
                                      mat4 mat1, mat4 mat2, mat4 mat3)
 {
     BrkGLCall(glUseProgram(shader));

@@ -106,7 +106,7 @@ void Brk_Text_LoadCharacterSet(BrkFont font)
         characterSet[ch] = character;
     }
 
-    prvTextShader = Brk_Shader_LoadFromMemory(prvTextVsSource, prvTextFsSource);
+    Brk_Shader_LoadFromMemory(&prvTextShader, prvTextVsSource, prvTextFsSource);
     prvTextVertexObject = Brk_VertexObject_CreateDynamic(24);
     Brk_VertexObject_SetAttributes(prvTextVertexObject, 0, 4, 0, 4);
 }

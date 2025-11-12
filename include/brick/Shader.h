@@ -6,9 +6,11 @@
 
 typedef unsigned int BrkShader;
 
-BrkAPI BrkShader Brk_Shader_Load(const char *vsFilePath, const char *fsFilePath);
+BrkAPI bool Brk_Shader_Load(BrkShader* shader, const char *vsFilePath, const char *fsFilePath);
 
-BrkAPI BrkShader Brk_Shader_LoadFromMemory(const char *vsSource, const char *fsSource);
+BrkAPI bool Brk_Shader_LoadFromMemory(BrkShader* shader, const char *vsSource, const char *fsSource);
+
+BrkAPI void Brk_Shader_SetUniformsVec2(BrkShader shader, const char* name, BrkVec2 vec2);
 
 BrkAPI void Brk_Shader_SetUniformsVec3(BrkShader shader, const char *name, BrkVec3 vec);
 

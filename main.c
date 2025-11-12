@@ -1,3 +1,4 @@
+#include "brick/Circle.h"
 #include "brick/Font.h"
 #include "brick/Macro.h"
 #include "brick/Sprite.h"
@@ -15,10 +16,12 @@ int main(void)
 {
     Brk_Window_Init(width, height, "brick breaker");
 
-    BrkCamera2D camera = Brk_Camera_Create((BrkVec2){0.0f, 0.0f}, (float) width, (float) height);
+    BrkCamera2D camera = Brk_Camera_Create((BrkVec2){0.0f, 0.0f}, (float)width, (float)height);
 
     BrkRectangle bat = Brk_Rectangle_Create((BrkVec2){600.0f, 680.0f}, (BrkVec2){200.0f, 30.0f});
-    BrkCircle ball = Brk_Circle_Create((BrkVec2){610.0f, 500.0f}, 15.0f);
+    BrkCircle ball = Brk_Circle_Create((BrkVec2){610.0f, 500.0f}, 10.0f);
+    // BrkCircle ball1 = Brk_Circle_Create((BrkVec2){610.0f, 500.0f}, 15.0f);
+    BrkSprite sprite = Brk_Sprite_Load("../res/container.jpg", (BrkVec2){100.0f, 300.0f}, (BrkVec2){200.0f, 200.0f});
 
     // BrkFont font = Brk_Font_Load("../font/arial.ttf");
     // Brk_Text_LoadCharacterSet(font);
@@ -41,7 +44,8 @@ int main(void)
             {
                 bat.position[0] += 5.0f;
             }
-        } else if (Brk_Window_KeyPressed('D'))
+        }
+        else if (Brk_Window_KeyPressed('D'))
         {
             bat.position[0] += 5.0f;
             if (bat.position[0] > width - 100.0f)
@@ -80,7 +84,7 @@ int main(void)
             }
         }
         // ball collision window border
-        if (ball.position[0] > (float) width || ball.position[0] < 0)
+        if (ball.position[0] > (float)width || ball.position[0] < 0)
         {
             speedX = -speedX;
         }
@@ -106,13 +110,14 @@ int main(void)
             {
                 if (j % 2 == i % 2)
                     Brk_Rectangle_Draw(bricks[j][i], Brk_GRAY, camera);
-                Brk_Rectangle_Draw(bricks[j][i], Brk_LIGHTGRAY, camera);
+                else
+                    Brk_Rectangle_Draw(bricks[j][i], Brk_LIGHTGRAY, camera);
             }
         }
-        // Brk_Text_DrawText("HelloWorld", Brk_RED, (BrkVec2){200, 500}, 1.0f, camera);
 
-        Brk_Circle_Draw(ball, Brk_WHITE, camera);
         Brk_Rectangle_Draw(bat, Brk_BLUE, camera);
+        Brk_Circle_Draw(ball, Brk_WHITE, camera);
+        Brk_Sprite_Draw(sprite, camera);
 
         Brk_Window_SwapBuffer();
     }
