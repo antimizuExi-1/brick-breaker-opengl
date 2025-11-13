@@ -3,6 +3,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include "Texture.h"
 #include "Macro.h"
 
 typedef struct
@@ -11,12 +12,20 @@ typedef struct
     FT_Face ftFace;
 } BrkFont;
 
-bool Brk_Font_Load(BrkFont* font, const char* ttfFile);
+typedef struct
+{
+    BrkTexture2D texture;
+    BrkIVec2 size;
+    BrkIVec2 bearing;
+    unsigned int advance; // distance to the next origin
+} BrkCharacter;
 
-void Brk_Text_LoadCharacterSet(BrkFont font);
+BrkAPI bool Brk_Font_Load(BrkFont* font, const char* ttfFile);
 
-void Brk_Text_Draw(const char* text, BrkColor color, BrkVec2 pos, float scale, BrkCamera2D camera);
+BrkAPI void Brk_Text_LoadCharacterSet(BrkFont font);
 
-void Brk_Font_Unload(BrkFont font);
+BrkAPI void Brk_Text_UnloadCharacterSet(void);
+
+BrkAPI void Brk_Font_Unload(BrkFont font);
 
 #endif //BRICK_FONT_H

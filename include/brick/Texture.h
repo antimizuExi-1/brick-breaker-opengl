@@ -2,7 +2,6 @@
 #define BRICK_TEXTURE_H
 
 #include <glad/glad.h>
-
 #include "Macro.h"
 #include "Export.h"
 
@@ -12,7 +11,7 @@ typedef enum PixelFormat
 {
     Brk_FORMAT_RGB = GL_RGB,
     Brk_FORMAT_RED = GL_RED,
-}PixelFormat;
+} PixelFormat;
 
 BrkAPI BrkTexture2D Brk_Texture2D_CreateUint8(int width, int height, PixelFormat format, unsigned char* data);
 

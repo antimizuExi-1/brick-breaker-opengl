@@ -2,3 +2,4 @@ cmake-build-debug-visual-studio
 .idea
 font
 test1.c
+res/container.jpg

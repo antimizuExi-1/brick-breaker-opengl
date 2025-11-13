@@ -134,37 +134,39 @@ int main(void)
         // draw
         Brk_Window_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+        Brk_Renderer_NewFrame();
         // draw bricks
         for (int i = 0; i < bricksH; i++)
         {
             for (int j = 0; j < bricksW; j++)
             {
                 if (j % 2 == i % 2)
-                    Brk_Renderer_DrawRect(bricks[j][i], Brk_GRAY, ScreenCamera);
+                    Brk_Renderer_DrawRect(bricks[j][i], Brk_GRAY);
                 else
-                    Brk_Renderer_DrawRect(bricks[j][i], Brk_LIGHTGRAY, ScreenCamera);
+                    Brk_Renderer_DrawRect(bricks[j][i], Brk_LIGHTGRAY);
             }
         }
 
-        Brk_Renderer_DrawCircle(ball, Brk_WHITE, ScreenCamera);
-        Brk_Sprite_Draw(bat, ScreenCamera);
-        Brk_Text_Draw(score_str, Brk_WHITE, (BrkVec2){1000.0f, 100.0f}, 0.5f, ScreenCamera);
+        Brk_Renderer_DrawCircle(ball, Brk_WHITE);
+        Brk_Renderer_DrawSprite(bat);
+        Brk_Renderer_DrawText(score_str, Brk_WHITE, (BrkVec2){1000.0f, 100.0f}, 0.5f);
 
         if (over)
         {
-            Brk_Text_Draw("Game Over", Brk_WHITE, (BrkVec2){500.0f, 400.0f}, 1.0f, ScreenCamera);
-            Brk_Text_Draw("press the r to restart", Brk_WHITE, (BrkVec2){480.0f, 450.0f}, 0.7f, ScreenCamera);
+            Brk_Renderer_DrawText("Game Over", Brk_WHITE, (BrkVec2){500.0f, 400.0f}, 1.0f);
+            Brk_Renderer_DrawText("press the r to restart", Brk_WHITE, (BrkVec2){480.0f, 450.0f}, 0.7f);
         }
         if (success)
         {
-            Brk_Text_Draw("You Win", Brk_WHITE, (BrkVec2){500.0f, 400.0f}, 1.0f, ScreenCamera);
-            Brk_Text_Draw("press the r to restart", Brk_WHITE, (BrkVec2){480.0f, 450.0f}, 0.7f, ScreenCamera);
+            Brk_Renderer_DrawText("You Win", Brk_WHITE, (BrkVec2){500.0f, 400.0f}, 1.0f);
+            Brk_Renderer_DrawText("press the r to restart", Brk_WHITE, (BrkVec2){480.0f, 450.0f}, 0.7f);
         }
 
         Brk_Window_SwapBuffer();
     }
     Brk_Window_Close();
     Brk_Sprite_Destroy(bat);
+    Brk_Text_UnloadCharacterSet();
     Brk_Font_Unload(font);
     return 0;
 }
