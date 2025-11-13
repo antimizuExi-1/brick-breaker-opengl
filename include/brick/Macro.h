@@ -17,14 +17,35 @@ typedef int BrkIVec3[3];
 #define Brk_LIGHTGRAY (BrkColor){0.5f, 0.5f, 0.5f}
 #define Brk_GRAY (BrkColor){0.25f, 0.25f, 0.25f}
 
+typedef struct BrkRectangle
+{
+    BrkVec2 position;
+    BrkVec2 size;
+} BrkRectangle;
+
+typedef struct BrkCircle
+{
+    BrkVec2 position;
+    float radius;
+} BrkCircle;
+
+typedef struct BrkCamera2D
+{
+    BrkVec2 position;
+    float width;
+    float height;
+} BrkCamera2D;
+
+// boolean
 #ifndef bool
 #define bool _Bool
 #define false 0
 #define true 1
 #endif
 
-// opengl
-#define GL_TRIANGLES 0x0004
-#define GL_TRIANGLE_FAN 0x0006
+#define brkX 0
+#define brkY 1
+#define brkWidth 0
+#define brkHeight 1
 
 #endif //BRICK_MACRO_H

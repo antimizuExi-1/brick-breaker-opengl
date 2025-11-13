@@ -4,7 +4,6 @@
 #include "GLCheek.h"
 #include "brick/VertexObject.h"
 
-
 BrkVertexObject Brk_VertexObject_Create(const float *vertices, unsigned int vertices_size)
 {
     BrkVertexObject vertexObject;
@@ -78,7 +77,7 @@ void Brk_VertexObject_DrawDynamic(BrkVertexObject vertexObject, PrimitiveTypes t
 {
     BrkGLCall(glBindVertexArray(vertexObject.vaoID));
     BrkGLCall(glUseProgram(shader));
-    // Update content of VBO memory
+    // Update content of VBO
     BrkGLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexObject.vboID));
     BrkGLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices_size, vertices));
     glDrawArrays(type, 0, vertexCount);

@@ -3,9 +3,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-
 #include "Macro.h"
-#include "Camera.h"
 
 typedef struct
 {

@@ -7,23 +7,21 @@
 #include "brick/Utils.h"
 #include "brick/Texture.h"
 
-BrkTexture2D Brk_Texture2D_CreateUint8(int width, int height, unsigned char* data)
+BrkTexture2D Brk_Texture2D_CreateUint8(int width, int height, PixelFormat format, unsigned char* data)
 {
     BrkTexture2D texture;
     BrkGLCall(glGenTextures(1, &texture));
     BrkGLCall(glBindTexture(GL_TEXTURE_2D, texture));
-    BrkGLCall(
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, GL_RGB,
-            width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-            data
-        )
-    );
+    BrkGLCall(glTexImage2D(
+        GL_TEXTURE_2D, 0, format,
+        width, height,
+        0, format,GL_UNSIGNED_BYTE,
+        data
+    ));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     BrkGLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
     return texture;
@@ -37,7 +35,7 @@ bool Brk_Texture2D_LoadFromImage(BrkTexture2D* texture, const char* imagePath)
     unsigned char* data = stbi_load(imagePath, &width, &height, &nrChannel, 0);
     if (data)
     {
-        *texture = Brk_Texture2D_CreateUint8(width, height, data);
+        *texture = Brk_Texture2D_CreateUint8(width, height, Brk_FORMAT_RGB, data);
         stbi_image_free(data);
         return true;
     }

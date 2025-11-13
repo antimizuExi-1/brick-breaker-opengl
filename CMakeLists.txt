@@ -9,7 +9,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     find_package(Freetype REQUIRED)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # I use brew installed cglm and freetype lib on my mac
-    # There are little different, I have to used PkgConfig to find 3rd party on cmake
+    # There are little different, I have to used PkgConfig to find their on cmake
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(cglm REQUIRED IMPORTED_TARGET cglm)
     pkg_check_modules(freetype2 REQUIRED IMPORTED_TARGET freetype2)
@@ -24,13 +24,10 @@ set(brick_lib_src
         src/Utils.c
         src/Shader.c
         src/GLCheck.c
-        src/Camera.c
-        src/Rectangle.c
-        src/Circle.c
-        src/Shape.c
         src/Texture.c
         src/Sprite.c
         src/Font.c
+        src/Renderer.c
 )
 
 add_library(brick ${brick_lib_src})

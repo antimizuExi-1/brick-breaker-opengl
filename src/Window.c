@@ -7,14 +7,10 @@
 // private
 static GLFWwindow* window;
 
-extern void prv_Brk_Shape_LoadShader(void);
-extern void prv_Brk_Shape_UnloadShader(void);
+BrkCamera2D ScreenCamera = {0};
 
-extern void prv_Brk_Circle_InitShape(void);
-extern void prv_Brk_Circle_CloseShape(void);
-
-extern void prv_Brk_Rectangle_InitShape(void);
-extern void prv_Brk_Rectangle_CloseShape(void);
+extern void prv_Brk_Renderer_InitRenderResource(int width, int height);
+extern void prv_Brk_Renderer_CleanupRenderResource(void);
 
 extern void Brk_Sprite_LoadResource(void);
 extern void Brk_Sprite_CleanupResource(void);
@@ -22,6 +18,8 @@ extern void Brk_Sprite_CleanupResource(void);
 void resize(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    ScreenCamera.width = width/2;
+    ScreenCamera.height = height/2;
 }
 
 bool Brk_Window_Init(int width, int height, const char* title)
@@ -46,9 +44,12 @@ bool Brk_Window_Init(int width, int height, const char* title)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // init resource
-    prv_Brk_Shape_LoadShader();
-    prv_Brk_Rectangle_InitShape();
-    prv_Brk_Circle_InitShape();
+    ScreenCamera.width = width;
+    ScreenCamera.height = height;
+    ScreenCamera.position[0] = 0.0f;
+    ScreenCamera.position[1] = 0.0f;
+
+    prv_Brk_Renderer_InitRenderResource(width, height);
     Brk_Sprite_LoadResource();
 
     return true;
@@ -56,9 +57,7 @@ bool Brk_Window_Init(int width, int height, const char* title)
 
 void Brk_Window_Close(void)
 {
-    prv_Brk_Shape_UnloadShader();
-    prv_Brk_Circle_CloseShape();
-    prv_Brk_Rectangle_CloseShape();
+    prv_Brk_Renderer_CleanupRenderResource();
     Brk_Sprite_CleanupResource();
 
     glfwDestroyWindow(window);

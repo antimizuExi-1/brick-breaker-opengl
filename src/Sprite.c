@@ -3,7 +3,6 @@
 
 #include "GLCheek.h"
 #include "brick/VertexObject.h"
-#include "brick/Camera.h"
 #include "brick/Sprite.h"
 
 #include "brick/Utils.h"
@@ -43,6 +42,8 @@ static const char* prvSpriteFSSrc =
 static BrkVertexObject prvSpriteVO = {0};
 static BrkShader prvSpriteShader = {0};
 
+static BrkCamera2D defCamera = {0};
+
 void Brk_Sprite_LoadResource(void)
 {
     Brk_Shader_LoadFromMemory(&prvSpriteShader, prvSpriteVSSrc, prvSpriteFSSrc);
@@ -58,12 +59,12 @@ BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void* data)
     glm_vec2_copy(position, sprite.position);
     glm_vec2_copy(size, sprite.size);
 
-    sprite.texture = Brk_Texture2D_CreateUint8(size[0], size[1], data);
+    sprite.texture = Brk_Texture2D_CreateUint8(size[0], size[1], Brk_FORMAT_RGB, data);
 
     return sprite;
 }
 
-bool Brk_Sprite_Load(BrkSprite* sprite, const char* imagePath, vec2 position, vec2 size)
+bool Brk_Sprite_CreateFromImg(BrkSprite* sprite, const char* imagePath, vec2 position, vec2 size)
 {
     glm_vec2_copy(position, sprite->position);
     glm_vec2_copy(size, sprite->size);
@@ -120,7 +121,7 @@ void Brk_Sprite_Draw(BrkSprite sprite, BrkCamera2D camera)
     Brk_VertexObject_Draw(prvSpriteVO, Triangles, prvSpriteShader, 6);
 }
 
-void Brk_Sprite_Unload(BrkSprite sprite)
+void Brk_Sprite_Destroy(BrkSprite sprite)
 {
     Brk_Texture2D_Destroy(sprite.texture);
 }

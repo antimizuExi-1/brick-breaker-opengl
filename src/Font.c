@@ -63,7 +63,7 @@ bool Brk_Font_Load(BrkFont* font, const char* ttfFile)
 void Brk_Text_LoadCharacterSet(BrkFont font)
 {
     FT_Set_Pixel_Sizes(font.ftFace, 0, 48);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    BrkGLCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
     for (unsigned char ch = 0; ch < 128; ch++)
     {
@@ -72,26 +72,28 @@ void Brk_Text_LoadCharacterSet(BrkFont font)
             BrkLogging(Brk_ERROR, "char %c load failed\n", ch);
             continue;
         }
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
 
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RED,
-            font.ftFace->glyph->bitmap.width,
-            font.ftFace->glyph->bitmap.rows,
-            0,
-            GL_RED,
-            GL_UNSIGNED_BYTE,
+        BrkTexture2D texture = Brk_Texture2D_CreateUint8(
+            font.ftFace->glyph->bitmap.width, font.ftFace->glyph->bitmap.rows,
+            Brk_FORMAT_RED,
             font.ftFace->glyph->bitmap.buffer
         );
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+        // BrkGLCall(glGenTextures(1, &texture));
+        // BrkGLCall(glBindTexture(GL_TEXTURE_2D, texture));
+        // BrkGLCall(glTexImage2D(
+        //     GL_TEXTURE_2D,
+        //     0,
+        //     GL_RED,
+        //     font.ftFace->glyph->bitmap.width, font.ftFace->glyph->bitmap.rows,
+        //     0,GL_RED,
+        //     GL_UNSIGNED_BYTE,
+        //     font.ftFace->glyph->bitmap.buffer
+        // ));
+        // BrkGLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+        // BrkGLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+        // BrkGLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+        // BrkGLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+        // BrkGLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
         BrkCharacter character = {
             .texture = texture,
@@ -101,11 +103,6 @@ void Brk_Text_LoadCharacterSet(BrkFont font)
             .bearing[0] = font.ftFace->glyph->bitmap_left,
             .bearing[1] = font.ftFace->glyph->bitmap_top
         };
-        // character.texture = Brk_Texture2D_CreateUint8(
-        //     font.ftFace->glyph->bitmap.width,
-        //     font.ftFace->glyph->bitmap.rows,
-        //     font.ftFace->glyph->bitmap.buffer
-        // );
 
         characterSet[ch] = character;
     }
@@ -145,7 +142,7 @@ void Brk_Text_Draw(const char* text, BrkColor color, BrkVec2 pos, float scale, B
             xpos + w, ypos + h, 1.0f, 1.0f
         };
 
-        glBindTexture(GL_TEXTURE_2D, drawChar.texture);
+        BrkGLCall(glBindTexture(GL_TEXTURE_2D, drawChar.texture));
         Brk_VertexObject_DrawDynamic(prvTextVertexObject, Triangles, prvTextShader, vertices, arrlen(vertices), 6);
         current_x += (drawChar.advance) * scale;
     }

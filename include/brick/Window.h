@@ -4,6 +4,8 @@
 #include "Macro.h"
 #include "Export.h"
 
+extern BrkCamera2D ScreenCamera;
+
 BrkAPI bool Brk_Window_Init(int width, int height, const char *title);
 
 BrkAPI void Brk_Window_Close(void);
