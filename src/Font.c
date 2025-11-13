@@ -11,59 +11,57 @@
 #include "brick/Sprite.h"
 #include "brick/VertexObject.h"
 
+const char* prvTextVsSource =
+    "#version 330 core\n"
+    "layout (location = 0) in vec4 vertex;\n"
+    "out vec2 TexCoords;\n"
+    "uniform mat4 projection;\n"
+    "void main() {\n"
+    "   gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n"
+    "   TexCoords = vec2(vertex.z, vertex.w);\n"
+    "}";
+
+const char* prvTextFsSource =
+    "#version 330 core\n"
+    "in vec2 TexCoords;\n"
+    "out vec4 color;\n"
+    "uniform sampler2D text;\n"
+    "uniform vec3 textColor;\n"
+    "void main() {\n"
+    "   vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
+    "   color = vec4(textColor, 1.0) * sampled;\n"
+    "}";
+
 typedef struct
 {
-    unsigned int texture_id;
-    int width;
-    int height;
-    int bearing_x;
-    int bearing_y;
+    BrkTexture2D texture;
+    BrkIVec2 size;
+    BrkIVec2 bearing;
     unsigned int advance; // distance to the next origin
 } BrkCharacter;
 
-const char *prvTextVsSource =
-        "#version 330 core\n"
-        "layout (location = 0) in vec4 vertex;\n"
-        "out vec2 TexCoords;\n"
-        "uniform mat4 projection;\n"
-        "void main() {\n"
-        "   gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n"
-        "   TexCoords = vec2(vertex.z, vertex.w);\n"
-        "}";
-
-const char *prvTextFsSource =
-        "#version 330 core\n"
-        "in vec2 TexCoords;\n"
-        "out vec4 color;\n"
-        "uniform sampler2D text;\n"
-        "uniform vec3 textColor;\n"
-        "void main() {\n"
-        "   vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
-        "   color = vec4(textColor, 1.0) * sampled;\n"
-        "}";
-
-static BrkCharacter characterSet[128];
+static BrkCharacter characterSet[128] = {0};
 static BrkShader prvTextShader = {0};
 static BrkVertexObject prvTextVertexObject = {0};
 
-BrkFont Brk_Font_Load(const char *ttfFile)
+bool Brk_Font_Load(BrkFont* font, const char* ttfFile)
 {
-    BrkFont font = {0};
-    if (FT_Init_FreeType(&font.ftLibrary))
+    if (FT_Init_FreeType(&font->ftLibrary))
     {
         BrkLogging(Brk_ERROR, "FreeType init failed\n");
+        return false;
     }
-    if (FT_New_Face(font.ftLibrary, ttfFile, 0, &font.ftFace))
+    if (FT_New_Face(font->ftLibrary, ttfFile, 0, &font->ftFace))
     {
         BrkLogging(Brk_ERROR, "font file load failed\n");
+        FT_Done_FreeType(font->ftLibrary);
+        return false;
     }
-    return font;
+    return true;
 }
 
 void Brk_Text_LoadCharacterSet(BrkFont font)
 {
-    BrkCharacter brkDrawableChar;
-
     FT_Set_Pixel_Sizes(font.ftFace, 0, 48);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -89,20 +87,26 @@ void Brk_Text_LoadCharacterSet(BrkFont font)
             GL_UNSIGNED_BYTE,
             font.ftFace->glyph->bitmap.buffer
         );
-
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+
         BrkCharacter character = {
-            .texture_id = texture,
-            .width = font.ftFace->glyph->bitmap.width,
-            .height = font.ftFace->glyph->bitmap.rows,
+            .texture = texture,
+            .size[0] = font.ftFace->glyph->bitmap.width,
+            .size[1] = font.ftFace->glyph->bitmap.rows,
             .advance = font.ftFace->glyph->advance.x >> 6,
-            .bearing_x = font.ftFace->glyph->bitmap_left,
-            .bearing_y = font.ftFace->glyph->bitmap_top
+            .bearing[0] = font.ftFace->glyph->bitmap_left,
+            .bearing[1] = font.ftFace->glyph->bitmap_top
         };
+        // character.texture = Brk_Texture2D_CreateUint8(
+        //     font.ftFace->glyph->bitmap.width,
+        //     font.ftFace->glyph->bitmap.rows,
+        //     font.ftFace->glyph->bitmap.buffer
+        // );
+
         characterSet[ch] = character;
     }
 
@@ -111,27 +115,26 @@ void Brk_Text_LoadCharacterSet(BrkFont font)
     Brk_VertexObject_SetAttributes(prvTextVertexObject, 0, 4, 0, 4);
 }
 
-void Brk_Text_DrawText(const char *text, BrkColor color, BrkVec2 pos, float scale, BrkCamera2D camera)
+void Brk_Text_Draw(const char* text, BrkColor color, BrkVec2 pos, float scale, BrkCamera2D camera)
 {
-    Brk_Shader_SetUniformsVec3(prvTextShader, "textColor", color);
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
     glm_ortho(0.0f, camera.width,
               camera.height, 0.0f,
               -100.0f, 100.0f, projection);
     Brk_Shader_SetUniformsMat4(prvTextShader, "projection", projection);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    Brk_Shader_SetUniformsVec3(prvTextShader, "textColor", color);
+
     float current_x = pos[0];
-    for (const char *ch = text; *ch; ch++)
+    for (const char* ch = text; *ch; ch++)
     {
         if (*ch < 0)
             continue;
         BrkCharacter drawChar = characterSet[(*ch)];
-        float xpos = current_x + drawChar.bearing_x * scale;
-        float ypos = pos[1] - drawChar.bearing_y * scale;
+        float xpos = current_x + drawChar.bearing[0] * scale;
+        float ypos = pos[1] - drawChar.bearing[1] * scale;
 
-        float w = drawChar.width * scale;
-        float h = drawChar.height * scale;
+        float w = drawChar.size[0] * scale;
+        float h = drawChar.size[1] * scale;
 
         float vertices[24] = {
             xpos, ypos + h, 0.0f, 1.0f,
@@ -142,12 +145,9 @@ void Brk_Text_DrawText(const char *text, BrkColor color, BrkVec2 pos, float scal
             xpos + w, ypos + h, 1.0f, 1.0f
         };
 
-        glBindTexture(GL_TEXTURE_2D, drawChar.texture_id);
-        glBindBuffer(GL_ARRAY_BUFFER, prvTextVertexObject.vboID);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        current_x += (drawChar.advance + 5) * scale;
+        glBindTexture(GL_TEXTURE_2D, drawChar.texture);
+        Brk_VertexObject_DrawDynamic(prvTextVertexObject, Triangles, prvTextShader, vertices, arrlen(vertices), 6);
+        current_x += (drawChar.advance) * scale;
     }
 }
 

@@ -13,11 +13,11 @@ typedef struct
     FT_Face ftFace;
 } BrkFont;
 
-BrkFont Brk_Font_Load(const char *ttfFile);
+bool Brk_Font_Load(BrkFont* font, const char* ttfFile);
 
 void Brk_Text_LoadCharacterSet(BrkFont font);
 
-void Brk_Text_DrawText(const char *text, BrkColor color, BrkVec2 pos, float scale, BrkCamera2D camera);
+void Brk_Text_Draw(const char* text, BrkColor color, BrkVec2 pos, float scale, BrkCamera2D camera);
 
 void Brk_Font_Unload(BrkFont font);
 
