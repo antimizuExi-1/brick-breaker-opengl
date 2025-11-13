@@ -7,8 +7,8 @@
 // private
 static GLFWwindow* window;
 
-extern void Brk_Shape_LoadShader(void);
-extern void Brk_Shape_UnloadShader(void);
+extern void prv_Brk_Shape_LoadShader(void);
+extern void prv_Brk_Shape_UnloadShader(void);
 
 extern void prv_Brk_Circle_InitShape(void);
 extern void prv_Brk_Circle_CloseShape(void);
@@ -43,10 +43,10 @@ bool Brk_Window_Init(int width, int height, const char* title)
     glfwSwapInterval(1);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glfwSetFramebufferSizeCallback(window, resize);
-    // glEnable(GL_DEPTH_TEST);
-
-    // init shape resource
-    Brk_Shape_LoadShader();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // init resource
+    prv_Brk_Shape_LoadShader();
     prv_Brk_Rectangle_InitShape();
     prv_Brk_Circle_InitShape();
     Brk_Sprite_LoadResource();
@@ -56,7 +56,7 @@ bool Brk_Window_Init(int width, int height, const char* title)
 
 void Brk_Window_Close(void)
 {
-    Brk_Shape_UnloadShader();
+    prv_Brk_Shape_UnloadShader();
     prv_Brk_Circle_CloseShape();
     prv_Brk_Rectangle_CloseShape();
     Brk_Sprite_CleanupResource();

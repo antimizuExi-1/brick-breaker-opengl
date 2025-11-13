@@ -4,10 +4,10 @@
 
 typedef unsigned int BrkTexture2D;
 
-BrkAPI BrkTexture2D Brk_Texture2D_Create(int width, int height, void *data);
+BrkAPI BrkTexture2D Brk_Texture2D_CreateUint8(int width, int height, unsigned char* data);
 
-BrkAPI BrkTexture2D Brk_Texture2D_LoadFromImage(const char *imagePath);
+BrkAPI bool Brk_Texture2D_LoadFromImage(BrkTexture2D* texture, const char* imagePath);
 
-BrkAPI void Brk_Texture2D_Unload(BrkTexture2D texture);
+BrkAPI void Brk_Texture2D_Destroy(BrkTexture2D texture);
 
 #endif //BRICK_TEXTURE_H

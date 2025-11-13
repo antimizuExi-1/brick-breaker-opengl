@@ -1,19 +1,20 @@
 #ifndef BRICK_SPRITE_H
 #define BRICK_SPRITE_H
 
-#include "Rectangle.h"
+#include "Macro.h"
 #include "Texture.h"
 #include "Camera.h"
 
 typedef struct BrkSprite
 {
-    BrkRectangle rect;
+    BrkVec2 position;
+    BrkVec2 size;
     BrkTexture2D texture;
 } BrkSprite;
 
 BrkAPI BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void* data);
 
-BrkAPI BrkSprite Brk_Sprite_Load(const char *imagePath, BrkVec2 position, BrkVec2 size);
+BrkAPI bool Brk_Sprite_Load(BrkSprite* sprite, const char* imagePath, BrkVec2 position, BrkVec2 size);
 
 BrkAPI void Brk_Sprite_DrawDynamic(BrkSprite sprite, const float *vertices, unsigned int vertices_size, BrkCamera2D camera);
 

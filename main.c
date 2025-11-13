@@ -1,6 +1,7 @@
 #include "brick/Circle.h"
 #include "brick/Font.h"
 #include "brick/Macro.h"
+#include "brick/Rectangle.h"
 #include "brick/Sprite.h"
 #include "brick/Window.h"
 #include "brick/Shape.h"
@@ -18,13 +19,15 @@ int main(void)
 
     BrkCamera2D camera = Brk_Camera_Create((BrkVec2){0.0f, 0.0f}, (float)width, (float)height);
 
-    BrkRectangle bat = Brk_Rectangle_Create((BrkVec2){600.0f, 680.0f}, (BrkVec2){200.0f, 30.0f});
     BrkCircle ball = Brk_Circle_Create((BrkVec2){610.0f, 500.0f}, 10.0f);
-    // BrkCircle ball1 = Brk_Circle_Create((BrkVec2){610.0f, 500.0f}, 15.0f);
-    BrkSprite sprite = Brk_Sprite_Load("../res/container.jpg", (BrkVec2){100.0f, 300.0f}, (BrkVec2){200.0f, 200.0f});
 
-    // BrkFont font = Brk_Font_Load("../font/arial.ttf");
-    // Brk_Text_LoadCharacterSet(font);
+    BrkFont font = {0};
+    if (Brk_Font_Load(&font, "../res/arial.ttf"))
+    {
+        Brk_Text_LoadCharacterSet(font);
+    }
+    BrkSprite bat = {0};
+    Brk_Sprite_Load(&bat, "../res/bat.jpg", (BrkVec2){600.0f, 680.0f}, (BrkVec2){200.0f, 30.0f});
 
     const int bricksW = 12;
     const int bricksH = 6;
@@ -32,6 +35,10 @@ int main(void)
 
     float speedX = 0.0f;
     float speedY = 5.0f;
+
+    int score = 0;
+    char score_str[20] = {0};
+    sprintf(score_str, "Score:%d", score);
 
     while (!Brk_Window_ShouldClose())
     {
@@ -61,10 +68,21 @@ int main(void)
             ball.position[1] = 500.0f;
             bat.position[0] = 600.0f;
             bat.position[1] = 680.0f;
+
+            score = 0;
+            sprintf(score_str, "Score:%d", score);
         }
 
         // ball collision player bat
-        if (Brk_Rectangle_CheckCollision(bat, ball.position))
+        if (Brk_Rectangle_CheckCollision(
+                (BrkRectangle)
+                {
+                    bat.position[0], bat.position[1],
+                    bat.size[0], bat.size[1]
+                },
+                ball.position
+            )
+        )
         {
             speedX = (ball.position[0] - bat.position[0]) / 20;
             speedY = -speedY;
@@ -80,6 +98,8 @@ int main(void)
                     bricks[j][i].size[1] = 0;
                     speedX = (ball.position[0] - bricks[j][i].position[0]) / 20;
                     speedY = -speedY;
+                    score++;
+                    sprintf(score_str, "Score:%d", score);
                 }
             }
         }
@@ -115,13 +135,15 @@ int main(void)
             }
         }
 
-        Brk_Rectangle_Draw(bat, Brk_BLUE, camera);
         Brk_Circle_Draw(ball, Brk_WHITE, camera);
-        Brk_Sprite_Draw(sprite, camera);
+        Brk_Sprite_Draw(bat, camera);
+        Brk_Text_Draw(score_str, Brk_WHITE, (BrkVec2){1000.0f, 100.0f}, 0.5f, camera);
 
         Brk_Window_SwapBuffer();
     }
     Brk_Window_Close();
+    Brk_Sprite_Unload(bat);
+    Brk_Font_Unload(font);
     return 0;
 }
 

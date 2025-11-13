@@ -6,6 +6,8 @@
 #include "brick/Camera.h"
 #include "brick/Sprite.h"
 
+#include "brick/Utils.h"
+
 static const float prvSpriteVertices[] = {
     0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
@@ -26,7 +28,7 @@ static const char* prvSpriteVSSrc =
     "out vec2 TexCoord;\n"
     "void main(){\n"
     "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-    "   TexCoord = aTexCoord;\n"
+    "   TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
     "}\n";
 
 static const char* prvSpriteFSSrc =
@@ -53,24 +55,25 @@ BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void* data)
 {
     BrkSprite sprite;
 
-    glm_vec2_copy(position, sprite.rect.position);
-    glm_vec2_copy(size, sprite.rect.size);
+    glm_vec2_copy(position, sprite.position);
+    glm_vec2_copy(size, sprite.size);
 
-    sprite.texture = Brk_Texture2D_Create(size[0], size[1], data);
+    sprite.texture = Brk_Texture2D_CreateUint8(size[0], size[1], data);
 
     return sprite;
 }
 
-BrkSprite Brk_Sprite_Load(const char* imagePath, vec2 position, vec2 size)
+bool Brk_Sprite_Load(BrkSprite* sprite, const char* imagePath, vec2 position, vec2 size)
 {
-    BrkSprite sprite;
+    glm_vec2_copy(position, sprite->position);
+    glm_vec2_copy(size, sprite->size);
 
-    glm_vec2_copy(position, sprite.rect.position);
-    glm_vec2_copy(size, sprite.rect.size);
-
-    sprite.texture = Brk_Texture2D_LoadFromImage(imagePath);
-
-    return sprite;
+    if (Brk_Texture2D_LoadFromImage(&sprite->texture, imagePath))
+    {
+        return true;
+    }
+    BrkLogging(Brk_ERROR, "Sprite: Load image %s failed\n", imagePath);
+    return false;
 }
 
 void Brk_Sprite_DrawDynamic(BrkSprite sprite,
@@ -79,8 +82,8 @@ void Brk_Sprite_DrawDynamic(BrkSprite sprite,
 {
     BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
     mat4 model = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(model, (vec3){sprite.rect.position[0], sprite.rect.position[1], 0.0f});
-    glm_scale(model, (vec3){sprite.rect.size[0], sprite.rect.size[1], 1.0f});
+    glm_translate(model, (vec3){sprite.position[0], sprite.position[1], 0.0f});
+    glm_scale(model, (vec3){sprite.size[0], sprite.size[1], 1.0f});
 
     mat4 view = GLM_MAT4_IDENTITY_INIT;
     glm_translate(view, (vec3){camera.position[0], camera.position[1], 0.0f});
@@ -100,8 +103,8 @@ void Brk_Sprite_Draw(BrkSprite sprite, BrkCamera2D camera)
 {
     BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
     mat4 model = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(model, (vec3){sprite.rect.position[0], sprite.rect.position[1], 0.0f});
-    glm_scale(model, (vec3){sprite.rect.size[0], sprite.rect.size[1], 1.0f});
+    glm_translate(model, (vec3){sprite.position[0], sprite.position[1], 0.0f});
+    glm_scale(model, (vec3){sprite.size[0], sprite.size[1], 1.0f});
 
     mat4 view = GLM_MAT4_IDENTITY_INIT;
     glm_translate(view, (vec3){camera.position[0], camera.position[1], 0.0f});
@@ -119,7 +122,7 @@ void Brk_Sprite_Draw(BrkSprite sprite, BrkCamera2D camera)
 
 void Brk_Sprite_Unload(BrkSprite sprite)
 {
-    Brk_Texture2D_Unload(sprite.texture);
+    Brk_Texture2D_Destroy(sprite.texture);
 }
 
 void Brk_Sprite_CleanupResource(void)

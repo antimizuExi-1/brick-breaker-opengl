@@ -2,6 +2,8 @@
 #include "brick/Camera.h"
 #include "brick/Shape.h"
 
+#include <glad/glad.h>
+
 static const char* shapeVSSrc =
     "#version 330 core\n"
     "uniform mat4 projection;\n"
@@ -22,12 +24,12 @@ static const char* shapeFSSrc =
 
 static BrkShader shapeShader = {0};
 
-void Brk_Shape_LoadShader(void)
+void prv_Brk_Shape_LoadShader(void)
 {
     Brk_Shader_LoadFromMemory(&shapeShader, shapeVSSrc, shapeFSSrc);
 }
 
-void Brk_Shape_UnloadShader(void)
+void prv_Brk_Shape_UnloadShader(void)
 {
     Brk_Shader_Unload(shapeShader);
 }
