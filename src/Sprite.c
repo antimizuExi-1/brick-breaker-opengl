@@ -16,12 +16,12 @@ BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void* data)
     return sprite;
 }
 
-bool Brk_Sprite_CreateFromImg(BrkSprite* sprite, const char* imagePath, vec2 position, vec2 size)
+bool Brk_Sprite_CreateFromImg(BrkSprite* sprite, PixelFormat format, const char* imagePath, vec2 position, vec2 size)
 {
     glm_vec2_copy(position, sprite->position);
     glm_vec2_copy(size, sprite->size);
 
-    if (Brk_Texture2D_LoadFromImage(&sprite->texture, imagePath))
+    if (Brk_Texture2D_LoadFromImage(&sprite->texture, format, imagePath))
     {
         return true;
     }

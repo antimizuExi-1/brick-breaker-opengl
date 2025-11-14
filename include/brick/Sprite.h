@@ -13,7 +13,7 @@ typedef struct BrkSprite
 
 BrkAPI BrkSprite Brk_Sprite_Create(BrkVec2 position, BrkVec2 size, void* data);
 
-BrkAPI bool Brk_Sprite_CreateFromImg(BrkSprite* sprite, const char* imagePath, BrkVec2 position, BrkVec2 size);
+BrkAPI bool Brk_Sprite_CreateFromImg(BrkSprite* sprite, PixelFormat format, const char* imagePath, BrkVec2 position, BrkVec2 size);
 
 BrkAPI void Brk_Sprite_Destroy(BrkSprite sprite);
 
