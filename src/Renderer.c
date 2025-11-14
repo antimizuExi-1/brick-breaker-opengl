@@ -27,7 +27,6 @@ static const char *vertexShaderSrc =
         "        // Text mode - 2D projection only\n"
         "        gl_Position = projection * vec4(textPos.xy, 0.0, 1.0);\n"
         "    }\n"
-        "    \n"
         "    if (renderMode == 1) {\n"
         "        TexCoord = texCoord;\n"
         "    } else if (renderMode == 2) {\n"
@@ -67,7 +66,7 @@ static const char *fragmentShaderSrc =
 
 static BrkShader shader = {0};
 
-enum
+enum VertexObjectType
 {
     rectVO = 0, // rectangle
     circleVO,
@@ -76,6 +75,14 @@ enum
     textVO,
     endVO // It`s not an object, just indicate last one position
 };
+
+enum RenderMode
+{
+    drawShape = 0,
+    drawSprite,
+    drawText,
+};
+
 // All renderable objects`vo
 static BrkVertexObject vertexObjectArr[endVO] = {0};
 
@@ -174,6 +181,8 @@ void Brk_Renderer_NewFrameCamera2D(BrkCamera2D camera)
     glm_ortho(0.0f, camera.width,
               camera.height, 0.0f,
               -100.0f, 100.0f, projection);
+    Brk_Shader_SetUniformsMat4(shader, "projection", projection);
+    Brk_Shader_SetUniformsMat4(shader, "view", view);
 }
 
 void Brk_Renderer_Draw(BrkVertexObject vo,
@@ -184,10 +193,8 @@ void Brk_Renderer_Draw(BrkVertexObject vo,
     mat4 model = GLM_MAT4_IDENTITY_INIT;
     glm_translate(model, (vec3){position[0], position[1], 0.0f});
     glm_scale(model, (vec3){size[0], size[1], 1.0f});
-    Brk_Shader_SetThreeUniformsMat4(shader,
-                                    "model", "view", "projection",
-                                    model, view, projection);
-    Brk_Shader_SetUniform1i(shader, "renderMode", 0);
+    Brk_Shader_SetUniformsMat4(shader, "model", model);
+    Brk_Shader_SetUniform1i(shader, "renderMode", drawShape);
     Brk_Shader_SetUniformsVec3(shader, "baseColor", color);
 
     Brk_VertexObject_Draw(vo, type, shader, vertexCount);
@@ -199,10 +206,8 @@ void Brk_Renderer_DrawSprite(BrkSprite sprite)
     mat4 model = GLM_MAT4_IDENTITY_INIT;
     glm_translate(model, (vec3){sprite.position[0], sprite.position[1], 0.0f});
     glm_scale(model, (vec3){sprite.size[0], sprite.size[1], 1.0f});
-    Brk_Shader_SetThreeUniformsMat4(shader,
-                                    "model", "view", "projection",
-                                    model, view, projection);
-    Brk_Shader_SetUniform1i(shader, "renderMode", 1);
+    Brk_Shader_SetUniformsMat4(shader, "model", model);
+    Brk_Shader_SetUniform1i(shader, "renderMode", drawSprite);
     BrkGLCall(glActiveTexture(GL_TEXTURE0));
     BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
     Brk_Shader_SetUniform1i(shader, "diffuseTexture", 0);
@@ -216,9 +221,7 @@ void Brk_Renderer_DrawSpriteRect(BrkSprite sprite, BrkRectangle rect)
     mat4 model = GLM_MAT4_IDENTITY_INIT;
     glm_translate(model, (vec3){sprite.position[0], sprite.position[1], 0.0f});
     glm_scale(model, (vec3){rect.size[0], rect.size[1], 1.0f});
-    Brk_Shader_SetThreeUniformsMat4(shader,
-                                    "model", "view", "projection",
-                                    model, view, projection);
+    Brk_Shader_SetUniformsMat4(shader, "model", model);
     Brk_Shader_SetUniform1i(shader, "renderMode", 1);
     BrkGLCall(glActiveTexture(GL_TEXTURE0));
     BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
@@ -265,9 +268,8 @@ void Brk_Renderer_DrawText(const char *text, BrkColor color, BrkVec2 pos, float 
             xpos + w, ypos, 1.0f, 0.0f,
             xpos + w, ypos + h, 1.0f, 1.0f
         };
-        Brk_Shader_SetUniformsMat4(shader, "projection", projection);
         Brk_Shader_SetUniformsVec3(shader, "baseColor", color);
-        Brk_Shader_SetUniform1i(shader, "renderMode", 2);
+        Brk_Shader_SetUniform1i(shader, "renderMode", drawText);
         Brk_Shader_SetUniform1i(shader, "textTexture", 0);
         BrkGLCall(glActiveTexture(GL_TEXTURE0));
         BrkGLCall(glBindTexture(GL_TEXTURE_2D, drawChar.texture));
