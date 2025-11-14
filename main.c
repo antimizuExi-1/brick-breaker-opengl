@@ -17,14 +17,14 @@ int main(void)
 {
     Brk_Window_Init(width, height, "brick breaker");
 
-    BrkCircle ball = {.position = {610.0f, 500.0f}, .radius = 10.0f};
+    BrkCircle ball = {.position = {610.0f, 500.0f}, .radius = 15.0f};
     BrkFont font = {0};
     if (Brk_Font_Load(&font, "../res/arial.ttf"))
     {
         Brk_Text_LoadCharacterSet(font);
     }
     BrkSprite bat = {0};
-    Brk_Sprite_CreateFromImg(&bat, "../res/bat.jpg", (BrkVec2){600.0f, 680.0f}, (BrkVec2){200.0f, 30.0f});
+    Brk_Sprite_CreateFromImg(&bat, Brk_FORMAT_RGB, "../res/bat.jpg", (BrkVec2){600.0f, 680.0f}, (BrkVec2){200.0f, 30.0f});
 
     const int bricksW = 12;
     const int bricksH = 6;

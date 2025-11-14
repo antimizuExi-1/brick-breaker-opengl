@@ -7,8 +7,6 @@
 // private
 static GLFWwindow* window;
 
-// BrkCamera2D ScreenCamera = {0};
-
 extern void prv_Brk_Renderer_InitRenderResource(int width, int height);
 extern void prv_Brk_Renderer_CleanupRenderResource(void);
 
