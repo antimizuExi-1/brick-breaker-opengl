@@ -186,10 +186,7 @@ void prv_Brk_Renderer_CleanupRenderResource(void)
 
 void Brk_Renderer_NewFrame(void)
 {
-    glm_translate(view, (vec3){defaultCamera.position[0], defaultCamera.position[1], 0.0f});
-    glm_ortho(0.0f, defaultCamera.width,
-              defaultCamera.height, 0.0f,
-              -100.0f, 100.0f, projection);
+    Brk_Renderer_NewFrameCamera2D(defaultCamera);
 }
 
 void Brk_Renderer_NewFrameCamera2D(BrkCamera2D camera)
@@ -234,6 +231,10 @@ void Brk_Renderer_DrawSprite(BrkSprite sprite)
                                     model, view, projection);
 
     Brk_VertexObject_Draw(spriteVO, Triangles, spriteShader, 6);
+}
+
+void Brk_Renderer_DrawSpriteRect(BrkSprite sprite, BrkRectangle rect)
+{
 }
 
 void Brk_Renderer_DrawText(const char* text, BrkColor color, BrkVec2 pos, float scale)

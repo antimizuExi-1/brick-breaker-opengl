@@ -19,6 +19,8 @@ BrkAPI void Brk_Renderer_NewFrameCamera2D(BrkCamera2D camera);
 
 BrkAPI void Brk_Renderer_DrawSprite(BrkSprite sprite);
 
+BrkAPI void Brk_Renderer_DrawSpriteRect(BrkSprite sprite, BrkRectangle rect);
+
 BrkAPI void Brk_Renderer_DrawText(const char* text, BrkColor color, BrkVec2 pos, float scale);
 
 #endif //BRICK_RENDERER_H
