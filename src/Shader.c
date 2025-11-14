@@ -135,6 +135,17 @@ void Brk_Shader_SetThreeUniformsMat4(BrkShader shader,
     BrkGLCall(glUniformMatrix4fv(location3, 1 , false, mat3[0]));
 }
 
+void Brk_Shader_SetUniform1i(BrkShader shader, const char *name, int val) {
+    BrkGLCall(glUseProgram(shader));
+    int location = BrkGLCall(glGetUniformLocation(shader, name));
+    if (location == -1)
+    {
+        BrkLogging(Brk_ERROR, "Shader uniform %s not found\n", name);
+        return;
+    }
+    BrkGLCall(glUniform1i(location, val));
+}
+
 void Brk_Shader_Unload(BrkShader shader)
 {
     BrkGLCall(glDeleteProgram(shader));
