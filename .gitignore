@@ -3,3 +3,13 @@ cmake-build-debug-visual-studio
 font
 test1.c
 res/container.jpg
+res/aaa.jpg
+res/animal.png
+res/awesomeface.png
+res/fs.glsl
+res/test.jpg
+res/testpic.jpg
+res/trangle.fs
+res/trangle.vs
+res/vs.glsl
+res/wall.jpg
