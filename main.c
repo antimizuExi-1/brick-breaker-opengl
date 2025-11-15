@@ -1,8 +1,14 @@
 #include "brick/Font.h"
 #include "brick/Macro.h"
-#include "brick/Sprite.h"
 #include "brick/Window.h"
 #include "brick/Renderer.h"
+
+typedef struct
+{
+    BrkVec2 position;
+    BrkVec2 size;
+    BrkTexture2D texture;
+} Bat;
 
 const int width = 1200;
 const int height = 800;
@@ -23,8 +29,8 @@ int main(void)
     {
         Brk_Text_LoadCharacterSet(font);
     }
-    BrkSprite bat = {0};
-    Brk_Sprite_CreateFromImg(&bat, Brk_FORMAT_RGB, "../res/bat.jpg", (BrkVec2){600.0f, 680.0f}, (BrkVec2){200.0f, 30.0f});
+    Bat bat = {.position = {600.0f, 680.0f}, .size = {200.0f, 30.0f}};
+    Brk_Texture2D_LoadFromImage(&bat.texture, "../res/bat.jpg");
 
     const int bricksW = 12;
     const int bricksH = 6;
@@ -52,8 +58,7 @@ int main(void)
                 {
                     bat.position[0] += 5.0f;
                 }
-            }
-            else if (Brk_Window_KeyPressed('D'))
+            } else if (Brk_Window_KeyPressed('D'))
             {
                 bat.position[0] += 5.0f;
                 if (bat.position[0] > width - 100.0f)
@@ -77,8 +82,9 @@ int main(void)
             sprintf(score_str, "Score:%d", score);
         }
         // ball collision player bat
-        float batWidth = bat.size[0];
-        float batHeight = bat.size[1];
+        float batWidth = bat.size[brkWidth];
+        float batHeight = bat.size[brkHeight];
+
         if (ball.position[0] >= bat.position[0] - batWidth / 2 &&
             ball.position[0] <= bat.position[0] + batWidth / 2 &&
             ball.position[1] >= bat.position[1] - batHeight / 2 &&
@@ -109,7 +115,7 @@ int main(void)
             }
         }
         // ball collision window border
-        if (ball.position[0] > (float)width || ball.position[0] < 0)
+        if (ball.position[0] > (float) width || ball.position[0] < 0)
         {
             speedX = -speedX;
         }
@@ -148,7 +154,7 @@ int main(void)
         }
 
         Brk_Renderer_DrawCircle(ball, Brk_WHITE);
-        Brk_Renderer_DrawSprite(bat);
+        Brk_Renderer_DrawTextureRect(bat.texture, bat.position, (BrkRectangle){100.0f, 100.0f, 200.0f, 30.0f});
         Brk_Renderer_DrawText(score_str, Brk_WHITE, (BrkVec2){1000.0f, 100.0f}, 0.5f);
 
         if (over)
@@ -165,7 +171,8 @@ int main(void)
         Brk_Window_SwapBuffer();
     }
     Brk_Window_Close();
-    Brk_Sprite_Destroy(bat);
+    // Brk_Sprite_Destroy(bat);
+    Brk_Texture2D_Destroy(bat.texture);
     Brk_Text_UnloadCharacterSet();
     Brk_Font_Unload(font);
     return 0;

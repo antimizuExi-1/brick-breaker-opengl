@@ -5,10 +5,10 @@
 #include "brick/Utils.h"
 #include "brick/Shader.h"
 
-bool Brk_Shader_Load(BrkShader* shader, const char* vsFilePath, const char* fsFilePath)
+bool Brk_Shader_Load(BrkShader *shader, const char *vsFilePath, const char *fsFilePath)
 {
-    char* vsSource = Brk_LoadTextFile(vsFilePath);
-    char* fsSource = Brk_LoadTextFile(fsFilePath);
+    char *vsSource = Brk_LoadTextFile(vsFilePath);
+    char *fsSource = Brk_LoadTextFile(fsFilePath);
 
     if (vsSource == NULL || fsSource == NULL)
     {
@@ -20,7 +20,7 @@ bool Brk_Shader_Load(BrkShader* shader, const char* vsFilePath, const char* fsFi
     free(vsSource);
     free(fsSource);
 
-    if (flag)
+    if (!flag)
     {
         BrkLogging(Brk_ERROR, "Shader loaded failed\n");
         return false;
@@ -29,7 +29,7 @@ bool Brk_Shader_Load(BrkShader* shader, const char* vsFilePath, const char* fsFi
     return true;
 }
 
-bool Brk_Shader_LoadFromMemory(BrkShader* shader, const char* vsSource, const char* fsSource)
+bool Brk_Shader_LoadFromMemory(BrkShader *shader, const char *vsSource, const char *fsSource)
 {
     GLint success = 0;
     char info[512] = {0};
@@ -81,7 +81,7 @@ bool Brk_Shader_LoadFromMemory(BrkShader* shader, const char* vsSource, const ch
     return true;
 }
 
-void Brk_Shader_SetUniformsVec2(BrkShader shader, const char* name, BrkVec2 vec2)
+void Brk_Shader_SetUniformsVec2(BrkShader shader, const char *name, BrkVec2 vec2)
 {
     BrkGLCall(glUseProgram(shader));
     int location = BrkGLCall(glGetUniformLocation(shader, name));
@@ -93,7 +93,7 @@ void Brk_Shader_SetUniformsVec2(BrkShader shader, const char* name, BrkVec2 vec2
     BrkGLCall(glUniform2fv(location, 1, vec2));
 }
 
-void Brk_Shader_SetUniformsVec3(BrkShader shader, const char* name, vec3 vec)
+void Brk_Shader_SetUniformsVec3(BrkShader shader, const char *name, vec3 vec)
 {
     BrkGLCall(glUseProgram(shader));
     int location = BrkGLCall(glGetUniformLocation(shader, name));
@@ -105,7 +105,7 @@ void Brk_Shader_SetUniformsVec3(BrkShader shader, const char* name, vec3 vec)
     BrkGLCall(glUniform3fv(location, 1, vec));
 }
 
-void Brk_Shader_SetUniformsMat4(BrkShader shader, const char* name, mat4 mat)
+void Brk_Shader_SetUniformsMat4(BrkShader shader, const char *name, mat4 mat)
 {
     BrkGLCall(glUseProgram(shader));
     int location = BrkGLCall(glGetUniformLocation(shader, name));
@@ -118,7 +118,7 @@ void Brk_Shader_SetUniformsMat4(BrkShader shader, const char* name, mat4 mat)
 }
 
 void Brk_Shader_SetThreeUniformsMat4(BrkShader shader,
-                                     const char* name1, const char* name2, const char* name3,
+                                     const char *name1, const char *name2, const char *name3,
                                      mat4 mat1, mat4 mat2, mat4 mat3)
 {
     BrkGLCall(glUseProgram(shader));
@@ -135,7 +135,8 @@ void Brk_Shader_SetThreeUniformsMat4(BrkShader shader,
     BrkGLCall(glUniformMatrix4fv(location3, 1 , false, mat3[0]));
 }
 
-void Brk_Shader_SetUniform1i(BrkShader shader, const char *name, int val) {
+void Brk_Shader_SetUniform1i(BrkShader shader, const char *name, int val)
+{
     BrkGLCall(glUseProgram(shader));
     int location = BrkGLCall(glGetUniformLocation(shader, name));
     if (location == -1)
@@ -144,6 +145,11 @@ void Brk_Shader_SetUniform1i(BrkShader shader, const char *name, int val) {
         return;
     }
     BrkGLCall(glUniform1i(location, val));
+}
+
+void Brk_Shader_SetTextureUnit(BrkShader shader, const char *name, int textureUnit)
+{
+    Brk_Shader_SetUniform1i(shader, name, textureUnit);
 }
 
 void Brk_Shader_Unload(BrkShader shader)

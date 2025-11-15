@@ -22,6 +22,8 @@ BrkAPI void Brk_Shader_SetThreeUniformsMat4(BrkShader shader,
 
 BrkAPI void Brk_Shader_SetUniform1i(BrkShader shader, const char* name, int val);
 
+// BrkAPI void Brk_Shader_SetTextureUnit(BrkShader shader, const char *name, int textureUnit);
+
 BrkAPI void Brk_Shader_Unload(BrkShader shader);
 
 #endif //BRICK_SHADER_H
