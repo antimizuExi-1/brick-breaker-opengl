@@ -25,7 +25,6 @@ set(brick_lib_src
         src/Shader.c
         src/GLCheck.c
         src/Texture.c
-        src/Sprite.c
         src/Font.c
         src/Renderer.c
 )
@@ -44,3 +43,6 @@ target_link_libraries(BrickBreaker brick)
 # Just test graphics lib
 add_executable(test1 test1.c)
 target_link_libraries(test1 brick)
+
+add_executable(test2 test2.c)
+target_link_libraries(test2 brick)
