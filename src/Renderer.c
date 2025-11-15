@@ -27,7 +27,7 @@ static const char *vertexShaderSrc =
         "        gl_Position = projection * vec4(textPos.xy, 0.0, 1.0);\n"
         "    }\n"
         "    if (renderMode == 1) {\n"
-        "        TexCoord = texCoord;\n"
+        "        TexCoord = vec2(texCoord.x, 1-texCoord.y);\n"
         "    } else if (renderMode == 2) {\n"
         "        TextUV = textUV;\n"
         "    }\n"
@@ -48,13 +48,10 @@ static const char *fragmentShaderSrc =
         "out vec4 FragColor;\n"
         "void main() {\n"
         "    if (renderMode == 0) {\n"
-        "        // Shape mode - solid color\n"
         "        FragColor = vec4(baseColor, 1.0);\n"
         "    } else if (renderMode == 1) {\n"
-        "        // Sprite mode - texture sampling\n"
         "        FragColor = texture(diffuseTexture, TexCoord);\n"
         "    } else if (renderMode == 2) {\n"
-        "        // Text mode - monochrome text with color\n"
         "        vec4 sampled = vec4(1.0, 1.0, 1.0, texture(textTexture, TextUV).r);\n"
         "        FragColor = vec4(baseColor, 1.0) * sampled;\n"
         "    } else {\n"
@@ -96,8 +93,6 @@ BrkCharacter characterSet[128] = {0};
 void prv_Brk_Renderer_InitRenderResource(int width, int height)
 {
     Brk_Shader_LoadFromMemory(&shader, vertexShaderSrc, fragmentShaderSrc);
-    // Brk_Shader_SetTextureUnit(shader, "diffuseTexture", 0);
-    // Brk_Shader_SetTextureUnit(shader, "textTexture", 0);
 
     // rectangle
     float rectVertices[] = {
@@ -193,10 +188,9 @@ void Brk_Renderer_DrawTexture(BrkTexture2D texture, BrkVec2 position)
     glm_translate(model, (vec3){position[0], position[1], 0.0f});
     glm_scale(model, (vec3){texture.size[0], texture.size[1], 1.0f});
     Brk_Shader_SetUniformsMat4(shader, "model", model);
-
     // enable texture render
     Brk_Shader_SetUniform1i(shader, "renderMode", drawTexture);
-
+    // bind texture and set unit id on shader
     Brk_Texture2D_Bind(texture, shader, "diffuseTexture", 0);
     Brk_VertexObject_Draw(vertexObjectArr[textureVO], Triangles, shader, 6);
 }
