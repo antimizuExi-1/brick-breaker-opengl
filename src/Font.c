@@ -54,8 +54,6 @@ void Brk_Text_LoadCharacterSet(BrkFont font)
                 Brk_FORMAT_RED,
                 font.ftFace->glyph->bitmap.buffer
             ),
-            .size[0] = width,
-            .size[1] = height,
             .advance = font.ftFace->glyph->advance.x >> 6,
             .bearing[0] = font.ftFace->glyph->bitmap_left,
             .bearing[1] = font.ftFace->glyph->bitmap_top
@@ -69,9 +67,9 @@ void Brk_Text_UnloadCharacterSet(void)
 {
     for (unsigned char ch = 0; ch < 128; ch++)
     {
-        if (characterSet[ch].texture)
+        if (characterSet[ch].texture.id)
         {
-            BrkGLCall(glDeleteTextures(1, &characterSet[ch].texture));
+            BrkGLCall(glDeleteTextures(1, &characterSet[ch].texture.id));
         }
     }
 }

@@ -15,7 +15,6 @@ typedef struct
 typedef struct
 {
     BrkTexture2D texture;
-    BrkIVec2 size;
     BrkIVec2 bearing;
     unsigned int advance; // distance to the next origin
 } BrkCharacter;
