@@ -2,9 +2,8 @@
 #define BRICK_RENDERER_H
 #include "Macro.h"
 #include "VertexObject.h"
-#include "Sprite.h"
 
-BrkAPI void Brk_Renderer_Draw(BrkVertexObject vo,
+BrkAPI void Brk_Renderer_DrawShape(BrkVertexObject vo,
                               BrkVec2 position, BrkVec2 size,
                               PrimitiveTypes type,
                               int vertexCount, BrkColor color);
@@ -17,9 +16,9 @@ BrkAPI void Brk_Renderer_NewFrame(void);
 
 BrkAPI void Brk_Renderer_NewFrameCamera2D(BrkCamera2D camera);
 
-BrkAPI void Brk_Renderer_DrawSprite(BrkSprite sprite);
+BrkAPI void Brk_Renderer_DrawTexture(BrkTexture2D texture, BrkVec2 position);
 
-BrkAPI void Brk_Renderer_DrawSpriteRect(BrkSprite sprite, BrkRectangle rect);
+BrkAPI void Brk_Renderer_DrawTextureRect(BrkTexture2D texture, BrkVec2 position, BrkRectangle rect);
 
 BrkAPI void Brk_Renderer_DrawText(const char* text, BrkColor color, BrkVec2 pos, float scale);
 

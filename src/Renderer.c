@@ -4,7 +4,6 @@
 #include "brick/VertexObject.h"
 #include "brick/Shader.h"
 #include "brick/Font.h"
-#include "brick/Sprite.h"
 #include "brick/Renderer.h"
 
 static const char *vertexShaderSrc =
@@ -70,7 +69,7 @@ enum VertexObjectType
 {
     rectVO = 0, // rectangle
     circleVO,
-    spriteVO,
+    textureVO,
     dynamicSpriteVO, // update vertex data per frame
     textVO,
     endVO // It`s not an object, just indicate last one position
@@ -79,7 +78,7 @@ enum VertexObjectType
 enum RenderMode
 {
     drawShape = 0,
-    drawSprite,
+    drawTexture,
     drawText,
 };
 
@@ -97,6 +96,8 @@ BrkCharacter characterSet[128] = {0};
 void prv_Brk_Renderer_InitRenderResource(int width, int height)
 {
     Brk_Shader_LoadFromMemory(&shader, vertexShaderSrc, fragmentShaderSrc);
+    // Brk_Shader_SetTextureUnit(shader, "diffuseTexture", 0);
+    // Brk_Shader_SetTextureUnit(shader, "textTexture", 0);
 
     // rectangle
     float rectVertices[] = {
@@ -130,8 +131,8 @@ void prv_Brk_Renderer_InitRenderResource(int width, int height)
     vertexObjectArr[circleVO] = Brk_VertexObject_Create(circleVertices, arrlen(circleVertices));
     Brk_VertexObject_SetAttributes(vertexObjectArr[circleVO], 0, 3, 0, 3);
 
-    // sprite
-    float spriteVertices[] = {
+    // texture
+    float textureVertices[] = {
         0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
         0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
         -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
@@ -140,9 +141,9 @@ void prv_Brk_Renderer_InitRenderResource(int width, int height)
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
         -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
     };
-    vertexObjectArr[spriteVO] = Brk_VertexObject_Create(spriteVertices, arrlen(spriteVertices));
-    Brk_VertexObject_SetAttributes(vertexObjectArr[spriteVO], 0, 3, 0, 5);
-    Brk_VertexObject_SetAttributes(vertexObjectArr[spriteVO], 1, 2, 3, 5);
+    vertexObjectArr[textureVO] = Brk_VertexObject_Create(textureVertices, arrlen(textureVertices));
+    Brk_VertexObject_SetAttributes(vertexObjectArr[textureVO], 0, 3, 0, 5);
+    Brk_VertexObject_SetAttributes(vertexObjectArr[textureVO], 1, 2, 3, 5);
 
     // text
     vertexObjectArr[textVO] = Brk_VertexObject_CreateDynamic(24);
@@ -185,10 +186,51 @@ void Brk_Renderer_NewFrameCamera2D(BrkCamera2D camera)
     Brk_Shader_SetUniformsMat4(shader, "view", view);
 }
 
-void Brk_Renderer_Draw(BrkVertexObject vo,
-                       BrkVec2 position, BrkVec2 size,
-                       PrimitiveTypes type,
-                       int vertexCount, BrkColor color)
+void Brk_Renderer_DrawTexture(BrkTexture2D texture, BrkVec2 position)
+{
+    // transform
+    mat4 model = GLM_MAT4_IDENTITY_INIT;
+    glm_translate(model, (vec3){position[0], position[1], 0.0f});
+    glm_scale(model, (vec3){texture.size[0], texture.size[1], 1.0f});
+    Brk_Shader_SetUniformsMat4(shader, "model", model);
+
+    // enable texture render
+    Brk_Shader_SetUniform1i(shader, "renderMode", drawTexture);
+
+    Brk_Texture2D_Bind(texture, shader, "diffuseTexture", 0);
+    Brk_VertexObject_Draw(vertexObjectArr[textureVO], Triangles, shader, 6);
+}
+
+void Brk_Renderer_DrawTextureRect(BrkTexture2D texture, BrkVec2 position, BrkRectangle rect)
+{
+    mat4 model = GLM_MAT4_IDENTITY_INIT;
+    glm_translate(model, (vec3){position[0], position[1], 0.0f});
+    glm_scale(model, (vec3){rect.size[0], rect.size[1], 1.0f});
+    Brk_Shader_SetUniformsMat4(shader, "model", model);
+    Brk_Shader_SetUniform1i(shader, "renderMode", 1);
+
+    float w = rect.size[brkWidth] / (float) texture.size[brkWidth];
+    float h = rect.size[brkHeight] / (float) texture.size[brkHeight];
+    float u = rect.position[brkX] / (float) texture.size[brkWidth];
+    float v = rect.position[brkY] / (float) texture.size[brkHeight];
+
+    float vertices[] = {
+        0.5f, 0.5f, 0.0f, u + w, v + h,
+        0.5f, -0.5f, 0.0f, u + w, v,
+        -0.5f, 0.5f, 0.0f, u, (v + h),
+
+        0.5f, -0.5f, 0.0f, u + w, v,
+        -0.5f, -0.5f, 0.0f, u, v,
+        -0.5f, 0.5f, 0.0f, u, (v + h)
+    };
+    Brk_Texture2D_Bind(texture, shader, "diffuseTexture", 0);
+    Brk_VertexObject_DrawDynamic(vertexObjectArr[dynamicSpriteVO], Triangles, shader, vertices, arrlen(vertices), 6);
+}
+
+void Brk_Renderer_DrawShape(BrkVertexObject vo,
+                            BrkVec2 position, BrkVec2 size,
+                            PrimitiveTypes type,
+                            int vertexCount, BrkColor color)
 {
     mat4 model = GLM_MAT4_IDENTITY_INIT;
     glm_translate(model, (vec3){position[0], position[1], 0.0f});
@@ -200,65 +242,21 @@ void Brk_Renderer_Draw(BrkVertexObject vo,
     Brk_VertexObject_Draw(vo, type, shader, vertexCount);
 }
 
-void Brk_Renderer_DrawSprite(BrkSprite sprite)
-{
-    BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
-    mat4 model = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(model, (vec3){sprite.position[0], sprite.position[1], 0.0f});
-    glm_scale(model, (vec3){sprite.size[0], sprite.size[1], 1.0f});
-    Brk_Shader_SetUniformsMat4(shader, "model", model);
-    Brk_Shader_SetUniform1i(shader, "renderMode", drawSprite);
-    BrkGLCall(glActiveTexture(GL_TEXTURE0));
-    BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
-    Brk_Shader_SetUniform1i(shader, "diffuseTexture", 0);
-
-    Brk_VertexObject_Draw(vertexObjectArr[spriteVO], Triangles, shader, 6);
-}
-
-void Brk_Renderer_DrawSpriteRect(BrkSprite sprite, BrkRectangle rect)
-{
-    BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
-    mat4 model = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(model, (vec3){sprite.position[0], sprite.position[1], 0.0f});
-    glm_scale(model, (vec3){rect.size[0], rect.size[1], 1.0f});
-    Brk_Shader_SetUniformsMat4(shader, "model", model);
-    Brk_Shader_SetUniform1i(shader, "renderMode", 1);
-    BrkGLCall(glActiveTexture(GL_TEXTURE0));
-    BrkGLCall(glBindTexture(GL_TEXTURE_2D, sprite.texture));
-    Brk_Shader_SetUniform1i(shader, "diffuseTexture", 0);
-
-    float u = 0.0f, v = 0.0f, w = 0.0f, h = 0.0f;
-    w = rect.size[0] / sprite.size[0];
-    h = rect.size[1] / sprite.size[1];
-    u = rect.position[0] / sprite.size[0];
-    v = rect.position[1] / sprite.size[1];
-
-    float vertices[] = {
-        0.5f, 0.5f, 0.0f, u + w, v + h,
-        0.5f, -0.5f, 0.0f, u + w, v,
-        -0.5f, 0.5f, 0.0f, u, (v + h),
-
-        0.5f, -0.5f, 0.0f, u + w, v,
-        -0.5f, -0.5f, 0.0f, u, v,
-        -0.5f, 0.5f, 0.0f, u, (v + h)
-    };
-
-    Brk_VertexObject_DrawDynamic(vertexObjectArr[dynamicSpriteVO], Triangles, shader, vertices, arrlen(vertices), 6);
-}
-
 void Brk_Renderer_DrawText(const char *text, BrkColor color, BrkVec2 pos, float scale)
 {
     float current_x = pos[0];
     for (const char *ch = text; *ch; ch++)
     {
         if (*ch < 0)
+        {
             continue;
+        }
         BrkCharacter drawChar = characterSet[(*ch)];
         float xpos = current_x + drawChar.bearing[0] * scale;
         float ypos = pos[1] - drawChar.bearing[1] * scale;
 
-        float w = drawChar.size[0] * scale;
-        float h = drawChar.size[1] * scale;
+        float w = drawChar.texture.size[brkWidth] * scale;
+        float h = drawChar.texture.size[brkHeight] * scale;
 
         float vertices[24] = {
             xpos, ypos + h, 0.0f, 1.0f,
@@ -270,9 +268,8 @@ void Brk_Renderer_DrawText(const char *text, BrkColor color, BrkVec2 pos, float 
         };
         Brk_Shader_SetUniformsVec3(shader, "baseColor", color);
         Brk_Shader_SetUniform1i(shader, "renderMode", drawText);
-        Brk_Shader_SetUniform1i(shader, "textTexture", 0);
-        BrkGLCall(glActiveTexture(GL_TEXTURE0));
-        BrkGLCall(glBindTexture(GL_TEXTURE_2D, drawChar.texture));
+
+        Brk_Texture2D_Bind(drawChar.texture, shader, "textTexture", 0);
         Brk_VertexObject_DrawDynamic(vertexObjectArr[textVO], Triangles, shader, vertices, arrlen(vertices), 6);
         current_x += (drawChar.advance) * scale;
     }
@@ -280,13 +277,13 @@ void Brk_Renderer_DrawText(const char *text, BrkColor color, BrkVec2 pos, float 
 
 void Brk_Renderer_DrawRect(BrkRectangle rect, vec3 color)
 {
-    Brk_Renderer_Draw(vertexObjectArr[rectVO], rect.position, rect.size,
-                      Triangles, 6, color);
+    Brk_Renderer_DrawShape(vertexObjectArr[rectVO], rect.position, rect.size,
+                           Triangles, 6, color);
 }
 
 void Brk_Renderer_DrawCircle(BrkCircle circle, BrkColor color)
 {
-    Brk_Renderer_Draw(vertexObjectArr[circleVO], circle.position,
-                      (BrkVec2){circle.radius, circle.radius},
-                      TriangleFan, 34, color);
+    Brk_Renderer_DrawShape(vertexObjectArr[circleVO], circle.position,
+                           (BrkVec2){circle.radius, circle.radius},
+                           TriangleFan, 34, color);
 }
