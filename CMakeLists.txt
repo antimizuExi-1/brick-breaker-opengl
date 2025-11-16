@@ -46,3 +46,6 @@ target_link_libraries(test1 brick)
 
 add_executable(test2 test2.c)
 target_link_libraries(test2 brick)
+
+add_executable(test3 test3.c)
+target_link_libraries(test3 brick)
