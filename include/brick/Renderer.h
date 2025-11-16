@@ -1,6 +1,7 @@
 #ifndef BRICK_RENDERER_H
 #define BRICK_RENDERER_H
 #include "Macro.h"
+#include "Texture.h"
 #include "VertexObject.h"
 
 BrkAPI void Brk_Renderer_DrawShape(BrkVertexObject vo,

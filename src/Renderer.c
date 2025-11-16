@@ -83,14 +83,13 @@ enum RenderMode
 static BrkVertexObject vertexObjectArr[endVO] = {0};
 
 // If user not set camera use it.
-static BrkCamera2D defaultCamera = {0};
-static mat4 projection = GLM_MAT4_IDENTITY_INIT;
-static mat4 view = GLM_MAT4_IDENTITY_INIT;
+extern BrkCamera2D screenCamera;
+// static BrkCamera2D defaultCamera = {0};
 
 // every char on character set include the texture to draw
 BrkCharacter characterSet[128] = {0};
 
-void prv_Brk_Renderer_InitRenderResource(int width, int height)
+void prv_Brk_Renderer_InitRenderResource(void)
 {
     Brk_Shader_LoadFromMemory(&shader, vertexShaderSrc, fragmentShaderSrc);
 
@@ -150,10 +149,10 @@ void prv_Brk_Renderer_InitRenderResource(int width, int height)
     Brk_VertexObject_SetAttributes(vertexObjectArr[dynamicSpriteVO], 0, 3, 0, 5);
     Brk_VertexObject_SetAttributes(vertexObjectArr[dynamicSpriteVO], 1, 2, 3, 5);
 
-    defaultCamera.position[brkX] = 0.0f;
-    defaultCamera.position[brkY] = 0.0f;
-    defaultCamera.width = (float) width;
-    defaultCamera.height = (float) height;
+    // defaultCamera.position[brkX] = 0.0f;
+    // defaultCamera.position[brkY] = 0.0f;
+    // defaultCamera.width = (float) width;
+    // defaultCamera.height = (float) height;
 }
 
 void prv_Brk_Renderer_CleanupRenderResource(void)
@@ -168,11 +167,13 @@ void prv_Brk_Renderer_CleanupRenderResource(void)
 
 void Brk_Renderer_NewFrame(void)
 {
-    Brk_Renderer_NewFrameCamera2D(defaultCamera);
+    Brk_Renderer_NewFrameCamera2D(screenCamera);
 }
 
 void Brk_Renderer_NewFrameCamera2D(BrkCamera2D camera)
 {
+    mat4 projection = GLM_MAT4_IDENTITY_INIT;
+    mat4 view = GLM_MAT4_IDENTITY_INIT;
     glm_translate(view, (vec3){camera.position[0], camera.position[1], 0.0f});
     glm_ortho(0.0f, camera.width,
               camera.height, 0.0f,

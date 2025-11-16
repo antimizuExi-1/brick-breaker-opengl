@@ -19,7 +19,8 @@ typedef struct
 typedef enum PrimitiveTypes
 {
     Triangles = GL_TRIANGLES,
-    TriangleFan = GL_TRIANGLE_FAN
+    TriangleFan = GL_TRIANGLE_FAN,
+    TriangleStrips = GL_TRIANGLE_STRIP,
 } PrimitiveTypes;
 
 BrkAPI BrkVertexObject Brk_VertexObject_Create(const float* vertices, unsigned int vertices_size);

@@ -6,15 +6,14 @@
 
 // private
 static GLFWwindow* window;
-
-extern void prv_Brk_Renderer_InitRenderResource(int width, int height);
+BrkCamera2D screenCamera;
+extern void prv_Brk_Renderer_InitRenderResource(void);
 extern void prv_Brk_Renderer_CleanupRenderResource(void);
-
-extern void Brk_Sprite_LoadResource(void);
-extern void Brk_Sprite_CleanupResource(void);
 
 void resize(GLFWwindow* window, int width, int height)
 {
+    screenCamera.width = width;
+    screenCamera.height = height;
     glViewport(0, 0, width, height);
 }
 
@@ -40,7 +39,12 @@ bool Brk_Window_Init(int width, int height, const char* title)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // init resource
-    prv_Brk_Renderer_InitRenderResource(width, height);
+    screenCamera.width = width;
+    screenCamera.height = height;
+    screenCamera.position[brkX] = 0.0f;
+    screenCamera.position[brkY] = 0.0f;
+
+    prv_Brk_Renderer_InitRenderResource();
 
     return true;
 }
